@@ -31,7 +31,7 @@ export const TOTPVerify: React.FC<Args> = (args) => {
 			},
 		},
 		pluginOptions,
-		searchParams: { back },
+		searchParams: { back } = {},
 	} = args
 
 	const user = _user as unknown as UserWithTotp
@@ -46,9 +46,7 @@ export const TOTPVerify: React.FC<Args> = (args) => {
 		redirect(url)
 	}
 
-	// TODO: Report `user as any` to Payload
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	if (!user.hasTotp || (user.hasTotp && (user as any)._strategy === 'totp')) {
+	if (!user.hasTotp || (user.hasTotp && user._strategy === 'totp')) {
 		const url = formatAdminURL({
 			adminRoute,
 			path: '/',

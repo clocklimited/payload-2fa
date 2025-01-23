@@ -34,7 +34,7 @@ test.describe('Custom routes', () => {
 
 	test('should redirect to dashboard after signup', async ({ helpers }) => {
 		await helpers.createFirstUser({ page, baseURL, adminRoute: '/admin2' })
-		await expect(page).toHaveTitle('Dashboard - Payload')
+		await expect(page).toHaveURL(/^(.*?)\/admin2$/g)
 	})
 
 	test('should set totp', async ({ helpers }) => {

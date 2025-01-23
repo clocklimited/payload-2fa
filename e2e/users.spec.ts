@@ -17,6 +17,7 @@ test.describe('users', () => {
 			page = await browser.newPage()
 
 			await helpers.createFirstUser({ page, baseURL })
+			await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
 			await helpers.setupTotp({ page, baseURL })
 			await page.goto(`${baseURL}/admin`)
 		})
@@ -54,6 +55,7 @@ test.describe('users', () => {
 			baseURL = setupResult.baseURL
 			page = await browser.newPage()
 			await helpers.createFirstUser({ page, baseURL })
+			await page.waitForURL(/^(.*?)\/admin$/g)
 			await helpers.setupTotp({ page, baseURL })
 			await page.goto(`${baseURL}/admin`)
 		})

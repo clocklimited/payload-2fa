@@ -9,16 +9,13 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { v4 as uuidv4 } from 'uuid'
 
+import { createFirstUser } from './helpers/create-first-user'
 import type { ISetupArgs, ISetupResult } from './types'
 
 export const test = base.extend<
 	{
 		helpers: {
-			createFirstUser: (args: {
-				page: Page
-				baseURL: string
-				adminRoute?: string
-			}) => Promise<void>
+			createFirstUser: typeof createFirstUser
 			setupTotp: (args: {
 				page: Page
 				baseURL: string
@@ -110,24 +107,7 @@ export const test = base.extend<
 	],
 	helpers: async ({}, use) => {
 		await use({
-			createFirstUser: async ({
-				page,
-				baseURL,
-				adminRoute = '/admin',
-			}: {
-				page: Page
-				baseURL: string
-				adminRoute?: string
-			}) => {
-				await page.goto(`${baseURL}${adminRoute}/create-first-user`)
-				await page.getByLabel('Email').pressSequentially('human@domain.com')
-				await page.getByLabel('New Password').pressSequentially('123456')
-				await page.getByLabel('Confirm Password').pressSequentially('123456')
-
-				await page.getByRole('button', { name: 'Create' }).click({ delay: 1000 })
-
-				await page.waitForURL(`${baseURL}${adminRoute}`)
-			},
+			createFirstUser,
 			setupTotp: async ({
 				page,
 				baseURL,

@@ -18,6 +18,7 @@ test.describe('account', () => {
 				page = await browser.newPage()
 
 				await helpers.createFirstUser({ page, baseURL })
+				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
 				await helpers.setupTotp({ page, baseURL })
 				await page.goto(`${baseURL}/admin/account`)
 			})
@@ -114,6 +115,7 @@ test.describe('account', () => {
 				baseURL = setupResult.baseURL
 				page = await browser.newPage()
 				await helpers.createFirstUser({ page, baseURL })
+				await page.waitForURL(/^(.*?)\/admin$/g)
 				await helpers.setupTotp({ page, baseURL })
 				await page.goto(`${baseURL}/admin/account`)
 			})
@@ -212,7 +214,7 @@ test.describe('account', () => {
 				baseURL = setupResult.baseURL
 				page = await browser.newPage()
 				await helpers.createFirstUser({ page, baseURL })
-				await page.goto(`${baseURL}/admin/account`)
+				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
 			})
 
 			test.afterAll(async () => {
@@ -221,8 +223,8 @@ test.describe('account', () => {
 			})
 
 			test('should redirect to setup page', async ({}) => {
-				const path = page.url().replace(baseURL, '')
-				await expect(path).toMatch(/^\/admin\/setup-totp\?back=.*/)
+				await page.goto(`${baseURL}/admin/account`)
+				await expect(page).toHaveURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
 			})
 
 			test.describe('GET /api/account/me', () => {
@@ -297,6 +299,7 @@ test.describe('account', () => {
 				baseURL = setupResult.baseURL
 				page = await browser.newPage()
 				await helpers.createFirstUser({ page, baseURL })
+				await page.waitForURL(/^(.*?)\/admin$/g)
 				await page.goto(`${baseURL}/admin/account`)
 			})
 
@@ -310,11 +313,9 @@ test.describe('account', () => {
 			})
 
 			test('click should go to setup page', async ({}) => {
-				let path = page.url().replace(baseURL, '')
 				await page.getByRole('link', { name: 'Setup' }).click({ force: true })
-				await page.waitForURL(`${baseURL}/admin/setup-totp?back=**`)
-				path = page.url().replace(baseURL, '')
-				await expect(path).toMatch(/^\/admin\/setup-totp\?back=.*/)
+				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
+				await expect(page).toHaveURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
 				await page.goto(`${baseURL}/admin/account`)
 			})
 
