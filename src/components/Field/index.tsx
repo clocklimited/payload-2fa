@@ -19,7 +19,7 @@ export const TOTPField: TextFieldServerComponent = async (args) => {
 		user,
 	} = args
 
-	if (user?.id !== id) {
+	if (!user || user.id !== id) {
 		return null
 	}
 
