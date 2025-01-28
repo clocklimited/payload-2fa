@@ -75,6 +75,9 @@ importers:
       '@types/react-dom':
         specifier: 19.0.1
         version: 19.0.1
+      '@types/uuid':
+        specifier: ^10.0.0
+        version: 10.0.0
       copyfiles:
         specifier: 2.4.1
         version: 2.4.1
@@ -87,6 +90,9 @@ importers:
       eslint-config-next:
         specifier: 15.1.0
         version: 15.1.0(eslint-plugin-import-x@4.4.2(eslint@9.17.0)(typescript@5.7.2))(eslint@9.17.0)(typescript@5.7.2)
+      get-port:
+        specifier: ^7.1.0
+        version: 7.1.0
       graphql:
         specifier: ^16.8.1
         version: 16.10.0
@@ -132,6 +138,9 @@ importers:
       typescript:
         specifier: 5.7.2
         version: 5.7.2
+      uuid:
+        specifier: ^11.0.5
+        version: 11.0.5
 
 packages:
 
@@ -3336,6 +3345,10 @@ packages:
     resolution: {integrity: sha512-pjzuKtY64GYfWizNAJ0fr9VqttZkNiK2iS430LtIHzjBEr6bX8Am2zm4sW4Ro5wjWW5cAlRL1qAMTcXbjNAO2Q==}
     engines: {node: '>=8.0.0'}
 
+  get-port@7.1.0:
+    resolution: {integrity: sha512-QB9NKEeDg3xxVwCCwJQ9+xycaz6pBB6iQ76wiWMl1927n0Kir6alPiP+yuiICLLU4jpMe08dXfpebuQppFA2zw==}
+    engines: {node: '>=16'}
+
   get-proto@1.0.1:
     resolution: {integrity: sha512-sTSfBjoXBp89JvIKIefqw7U2CCebsc74kiY6awiGogKtoSGbgjYE/G/+l9sF3MWFPNc9IcoOC4ODfKHfxFmp0g==}
     engines: {node: '>= 0.4'}
@@ -5432,6 +5445,10 @@ packages:
 
   uuid@10.0.0:
     resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
+    hasBin: true
+
+  uuid@11.0.5:
+    resolution: {integrity: sha512-508e6IcKLrhxKdBbcA2b4KQZlLVp2+J5UwQ6F7Drckkc5N9ZJwFa4TgWtsww9UG8fGHbm6gbV19TdM5pQ4GaIA==}
     hasBin: true
 
   uuid@9.0.0:
@@ -9419,6 +9436,8 @@ snapshots:
 
   get-package-type@0.1.0: {}
 
+  get-port@7.1.0: {}
+
   get-proto@1.0.1:
     dependencies:
       dunder-proto: 1.0.1
@@ -11980,6 +11999,8 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   uuid@10.0.0: {}
+
+  uuid@11.0.5: {}
 
   uuid@9.0.0: {}
 

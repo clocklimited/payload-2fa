@@ -7,4 +7,4 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const server = await prepareServer(dirname, true)
 
-server.listen(3000)
+server.listen(parseInt(process.env.PORT || '3000'))
