@@ -1,9 +1,7 @@
-import type { NextServerOptions } from 'next/dist/server/next.js'
-
 import { createServer } from 'http'
 import next from 'next'
-import path from 'path'
-import { fileURLToPath, parse } from 'url'
+import type { NextServerOptions } from 'next/dist/server/next.js'
+import { parse } from 'url'
 
 export async function prepareServer(dirname: string, dev = true) {
 	const opts: NextServerOptions = {

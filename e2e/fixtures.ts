@@ -1,84 +1,127 @@
-import { test as base } from '@playwright/test'
-import type { Server } from 'http'
-import { MongoMemoryReplSet } from 'mongodb-memory-server'
+import { test as base, Page } from '@playwright/test'
+import { spawn } from 'child_process'
+import { mkdir, rm } from 'fs/promises'
+import getPort, { portNumbers } from 'get-port'
+import { MongoMemoryServer } from 'mongodb-memory-server'
+import { Secret, TOTP } from 'otpauth'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { v4 as uuidv4 } from 'uuid'
 
-import { prepareServer } from '../dev/prepareServer'
+type ISetupResult = Promise<{
+	port: number
+	baseURL: string
+	teardown: () => Promise<void>
+}>
 
 export const test = base.extend<
 	{
-		forEachWorker: void
 		helpers: {
-			createFirstUser: () => Promise<void>
+			createFirstUser: (args: { page: Page; baseURL: string }) => Promise<void>
+			setupTotp: (args: { page: Page; baseURL: string }) => Promise<void>
 		}
-		forceSetup: boolean
 	},
 	{
-		setupDatabase: () => Promise<MongoMemoryReplSet>
-		setupServer: () => Promise<Server>
+		setup: (args?: { forceSetup?: boolean }) => ISetupResult
 	}
 >({
-	forceSetup: [false, { option: true }],
-	baseURL: async ({}, use) => {
-		await use(`http://localhost:${3000 + test.info().workerIndex}/admin`)
-	},
-	setupDatabase: [
+	setup: [
 		async ({}, use) => {
-			await use(async () => {
-				const memoryDB = await MongoMemoryReplSet.create({
-					replSet: {
-						dbName: `payload-totp-${test.info().workerIndex}`,
+			await use(async ({ forceSetup }: any = {}) => {
+				const port = await getPort({ port: portNumbers(3000, 3100) })
+				const dbName = `payload-totp-${uuidv4()}`
+				const dbPath = `./tmp/${dbName}`
+				await mkdir(dbPath, { recursive: true })
+				const baseURL = `http://localhost:${port}`
+
+				const mongod = await MongoMemoryServer.create({
+					instance: {
+						dbName,
+						dbPath,
+						port: await getPort({ port: portNumbers(27017, 27117) }),
 					},
 				})
 
-				return memoryDB
+				const child = spawn('pnpm', ['dev:start'], {
+					stdio: 'inherit',
+					cwd: path.join(path.dirname(fileURLToPath(import.meta.url)), '..'),
+					env: {
+						...process.env,
+						NODE_ENV: 'production',
+						PORT: port.toString(),
+						FORCE_SETUP: forceSetup ? '1' : undefined,
+						DATABASE_URI: `${mongod.getUri()}&retryWrites=true`,
+					},
+				})
+
+				await new Promise((resolve, reject) => {
+					const timeout = setTimeout(() => reject(new Error('Server timeout')), 10000)
+
+					const interval = setInterval(async () => {
+						try {
+							const response = await fetch(`${baseURL}/admin`)
+							if (response.ok) {
+								clearTimeout(timeout)
+								clearInterval(interval)
+								resolve(null)
+							}
+						} catch (err) {}
+					}, 500)
+				})
+
+				return {
+					port,
+					baseURL,
+					teardown: async () => {
+						await new Promise((resolve, reject) => {
+							child.on('close', resolve)
+							child.on('error', reject)
+							child.kill()
+						})
+
+						if (mongod) {
+							await mongod.stop()
+						}
+
+						rm(path.resolve(dbPath), { recursive: true })
+					},
+				}
 			})
 		},
 		{ scope: 'worker' },
 	],
-	setupServer: [
-		async ({}, use) => {
-			await use(async () => {
-				const dirname = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'dev')
-				const server = await prepareServer(dirname, false)
-
-				return server
-			})
-		},
-		{ scope: 'worker' },
-	],
-	forEachWorker: [
-		async ({ setupDatabase, setupServer, forceSetup }, use) => {
-			const database = await setupDatabase()
-			process.env.DATABASE_URI = `${database.getUri()}&retryWrites=true`
-
-			if (forceSetup) {
-				process.env.FORCE_SETUP = '1'
-			}
-
-			const server = await setupServer()
-			server.listen(3000 + test.info().workerIndex)
-
-			await use()
-
-			if (server) {
-				server.close()
-			}
-
-			if (database) {
-				await database.stop()
-			}
-		},
-		{ auto: true },
-	],
-	helpers: async ({ page }, use) => {
+	helpers: async ({}, use) => {
 		await use({
-			createFirstUser: async () => {
-				await page.getByLabel('Email').fill('human@domain.com')
-				await page.getByLabel('New Password').fill('123456')
-				await page.getByLabel('Confirm Password').fill('123456')
-				await page.getByRole('button', { name: 'Create' }).dispatchEvent('click')
+			createFirstUser: async ({ page, baseURL }: { page: Page; baseURL: string }) => {
+				await page.goto(`${baseURL}/admin/create-first-user`)
+				await page.getByLabel('Email').pressSequentially('human@domain.com')
+				await page.getByLabel('New Password').pressSequentially('123456')
+				await page.getByLabel('Confirm Password').pressSequentially('123456')
+
+				await page.getByRole('button', { name: 'Create' }).click({ delay: 1000 })
+
+				await page.waitForURL(`${baseURL}/admin`)
+			},
+			setupTotp: async ({ page, baseURL }: { page: Page; baseURL: string }) => {
+				await page.goto(`${baseURL}/admin/setup-totp`)
+				await page.getByRole('button', { name: 'Add code manually' }).click()
+				const totpSecret = await page.getByRole('code').textContent()
+
+				const totp = new TOTP({
+					algorithm: 'SHA1',
+					digits: 6,
+					issuer: 'Payload',
+					label: 'human@domain.com',
+					period: 30,
+					secret: Secret.fromBase32(totpSecret || ''),
+				})
+
+				const token = totp.generate()
+
+				await page.locator('css=input:first-child[type="text"]').focus()
+				await page.evaluate((token) => navigator.clipboard.writeText(token), token)
+				await page.locator('css=input:first-child[type="text"]').press('ControlOrMeta+v')
+				await page.waitForURL(`${baseURL}/admin`)
 			},
 		})
 	},
