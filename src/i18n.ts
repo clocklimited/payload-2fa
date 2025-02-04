@@ -15,6 +15,9 @@ export const i18n = (incomingI18n?: I18nOptions<{} | DefaultTranslationsObject>)
 				totpPlugin: {
 					authApp: 'Authenticator app',
 					configured: 'Configured',
+					errors: {
+						alreadySet: 'You already have TOTP set.',
+					},
 					fieldDescription:
 						'Use an authentication app or browser extension to get two-factor authentication codes when prompted.',
 					setup: {
@@ -39,6 +42,9 @@ type I18n = {
 	totpPlugin: {
 		authApp: string
 		configured: string
+		errors: {
+			alreadySet: string
+		}
 		fieldDescription: string
 		setup: {
 			addCodeManually: string
