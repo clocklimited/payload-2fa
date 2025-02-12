@@ -7,6 +7,7 @@ import type { CustomTranslationsKeys, CustomTranslationsObject } from '../i18n.j
 import type { PayloadTOTPConfig } from '../types.js'
 
 import { setCookie } from '../setCookie.js'
+import { getTotpSecret } from '../utilities/getTotpSecret.js'
 
 export function setSecret(pluginOptions: PayloadTOTPConfig) {
 	const handler: PayloadHandler = async (req) => {
@@ -18,6 +19,12 @@ export function setSecret(pluginOptions: PayloadTOTPConfig) {
 
 		if (!user) {
 			return Response.json({ message: i18n.t('error:unauthorized'), ok: false })
+		}
+
+		const totpSecret = await getTotpSecret(user, payload)
+
+		if (totpSecret) {
+			return Response.json({ message: i18n.t('totpPlugin:errors:alreadySet'), ok: false })
 		}
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
