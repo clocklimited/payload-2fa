@@ -3,6 +3,7 @@ import { spawn } from 'child_process'
 import { mkdir, rm } from 'fs/promises'
 import getPort, { portNumbers } from 'get-port'
 import { MongoMemoryServer } from 'mongodb-memory-server'
+import { platform } from 'node:os'
 import { Secret, TOTP } from 'otpauth'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -18,7 +19,7 @@ export const test = base.extend<
 	{
 		helpers: {
 			createFirstUser: (args: { page: Page; baseURL: string }) => Promise<void>
-			setupTotp: (args: { page: Page; baseURL: string }) => Promise<void>
+			setupTotp: (args: { page: Page; baseURL: string }) => Promise<{ totpSecret: string }>
 		}
 	},
 	{
@@ -45,6 +46,7 @@ export const test = base.extend<
 				const child = spawn('pnpm', ['dev:start'], {
 					stdio: 'inherit',
 					cwd: path.join(path.dirname(fileURLToPath(import.meta.url)), '..'),
+					shell: platform() === 'win32',
 					env: {
 						...process.env,
 						NODE_ENV: 'production',
@@ -102,8 +104,16 @@ export const test = base.extend<
 
 				await page.waitForURL(`${baseURL}/admin`)
 			},
-			setupTotp: async ({ page, baseURL }: { page: Page; baseURL: string }) => {
-				await page.goto(`${baseURL}/admin/setup-totp`)
+			setupTotp: async ({
+				page,
+				baseURL,
+				back = '/admin',
+			}: {
+				page: Page
+				baseURL: string
+				back?: string
+			}) => {
+				await page.goto(`${baseURL}/admin/setup-totp?back=${encodeURI(back)}`)
 				await page.getByRole('button', { name: 'Add code manually' }).click()
 				const totpSecret = await page.getByRole('code').textContent()
 
@@ -119,9 +129,12 @@ export const test = base.extend<
 				const token = totp.generate()
 
 				await page.locator('css=input:first-child[type="text"]').focus()
-				await page.evaluate((token) => navigator.clipboard.writeText(token), token)
-				await page.locator('css=input:first-child[type="text"]').press('ControlOrMeta+v')
-				await page.waitForURL(`${baseURL}/admin`)
+				await page
+					.locator('css=input:first-child[type="text"]')
+					.pressSequentially(token, { delay: 300 })
+				await page.waitForURL(`${baseURL}${back}`)
+
+				return { totpSecret: totpSecret || '' }
 			},
 		})
 	},
