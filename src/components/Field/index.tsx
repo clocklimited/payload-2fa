@@ -1,36 +1,31 @@
 import type { I18nClient } from '@payloadcms/translations'
-import type { TextFieldServerComponent } from 'payload'
+import type { TextFieldServerProps } from 'payload'
 
 import type { CustomTranslationsKeys, CustomTranslationsObject } from '../../i18n.js'
-import type { PayloadTOTPConfig } from '../../types.js'
+import type { PayloadTOTPConfig, UserWithTotp } from '../../types.js'
 
-import { getTotpSecret } from '../../utilities/getTotpSecret.js'
 import styles from './index.module.css'
 import Remove from './Remove.js'
 import Setup from './Setup.js'
 
-export const TOTPField: TextFieldServerComponent = async (args) => {
-	const pluginOptions = args.pluginOptions as PayloadTOTPConfig
+type Args = {
+	pluginOptions: PayloadTOTPConfig
+} & TextFieldServerProps
+
+export const TOTPField = (args: Args) => {
+	const pluginOptions = args.pluginOptions
 	const i18n = args.i18n as I18nClient<CustomTranslationsObject, CustomTranslationsKeys>
 	const {
 		data: { id },
 		payload,
 		req: { url },
-		user,
+		user: _user,
 	} = args
+
+	const user = _user as unknown as UserWithTotp
 
 	if (!user || user.id !== id) {
 		return null
-	}
-
-	let configured = false
-
-	if (id) {
-		const totpSecret = await getTotpSecret(user, payload)
-
-		if (totpSecret) {
-			configured = true
-		}
 	}
 
 	return (
@@ -42,14 +37,14 @@ export const TOTPField: TextFieldServerComponent = async (args) => {
 			<div className={styles.text}>
 				<label className="field-label">
 					{i18n.t('totpPlugin:authApp')}
-					{configured && (
+					{user.hasTotp && (
 						<span className={styles.status}>{i18n.t('totpPlugin:configured')}</span>
 					)}
 				</label>
 				<span className={styles.description}>{i18n.t('totpPlugin:fieldDescription')}</span>
 			</div>
 			<div className={styles.action}>
-				{configured && !pluginOptions.forceSetup && (
+				{user.hasTotp && !pluginOptions.forceSetup && (
 					<Remove
 						i18n={i18n}
 						payload={payload}
@@ -57,7 +52,7 @@ export const TOTPField: TextFieldServerComponent = async (args) => {
 						user={user}
 					/>
 				)}
-				{!configured && !pluginOptions.forceSetup && <Setup backUrl={url} i18n={i18n} />}
+				{!user.hasTotp && !pluginOptions.forceSetup && <Setup backUrl={url} i18n={i18n} />}
 			</div>
 		</div>
 	)

@@ -1,17 +1,20 @@
 import type { I18nClient } from '@payloadcms/translations'
-import type { PayloadHandler } from 'payload'
+import type { BasePayload, PayloadHandler } from 'payload'
 
 import { Secret, TOTP } from 'otpauth'
 
 import type { CustomTranslationsKeys, CustomTranslationsObject } from '../i18n.js'
-import type { PayloadTOTPConfig } from '../types.js'
+import type { PayloadTOTPConfig, UserWithTotp } from '../types.js'
 
 import { setCookie } from '../setCookie.js'
 import { getTotpSecret } from '../utilities/getTotpSecret.js'
 
 export function verifyToken(pluginOptions: PayloadTOTPConfig) {
 	const handler: PayloadHandler = async (req) => {
-		const { payload, user } = req
+		const { payload, user } = req as unknown as {
+			payload: BasePayload
+			user: UserWithTotp
+		}
 		const i18n = req.i18n as unknown as I18nClient<
 			CustomTranslationsObject,
 			CustomTranslationsKeys
@@ -21,9 +24,7 @@ export function verifyToken(pluginOptions: PayloadTOTPConfig) {
 			return Response.json({ message: i18n.t('error:unauthorized'), ok: false })
 		}
 
-		const totpSecret = await getTotpSecret(user, payload)
-
-		if (!totpSecret) {
+		if (!user.hasTotp) {
 			return Response.json({ message: i18n.t('error:unauthorized'), ok: false })
 		}
 
@@ -39,6 +40,12 @@ export function verifyToken(pluginOptions: PayloadTOTPConfig) {
 			return Response.json({ message: i18n.t('error:unspecific'), ok: false })
 		}
 
+		const totpSecret = await getTotpSecret({
+			collection: pluginOptions.collection,
+			payload,
+			user,
+		})
+
 		const totp = new TOTP({
 			algorithm: pluginOptions.totp?.algorithm || 'SHA1',
 			digits: pluginOptions.totp?.digits || 6,
@@ -47,7 +54,7 @@ export function verifyToken(pluginOptions: PayloadTOTPConfig) {
 			// @ts-ignore
 			label: user.email || user.username,
 			period: pluginOptions.totp?.period || 30,
-			secret: Secret.fromBase32(totpSecret),
+			secret: Secret.fromBase32(totpSecret!),
 		})
 
 		const delta = totp.validate({ token: data['token'].toString(), window: 1 })
@@ -56,7 +63,7 @@ export function verifyToken(pluginOptions: PayloadTOTPConfig) {
 			return Response.json({ message: i18n.t('totpPlugin:setup:incorrectCode'), ok: false })
 		}
 
-		const collection = payload.collections[user.collection]
+		const collection = payload.collections[pluginOptions.collection]
 
 		await setCookie({
 			authConfig: collection.config.auth,

@@ -192,7 +192,7 @@ test.describe('remove totp', () => {
 						res = await page.request.get(`${baseURL}/api/users/me`)
 						expect(res.ok()).toBeTruthy()
 						const data = await res.json()
-						expect(data?.user?.hasTotp).toBeUndefined()
+						expect(data?.user?.hasTotp).toBeFalsy()
 					})
 				})
 			})

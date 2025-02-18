@@ -1,8 +1,6 @@
 import type { Access } from 'payload'
 
-import type { PayloadTOTPConfig } from './types.js'
-
-import { getTotpSecret } from './utilities/getTotpSecret.js'
+import type { PayloadTOTPConfig, UserWithTotp } from './types.js'
 
 type Args = {
 	originalAccess?: Access
@@ -14,8 +12,8 @@ export const totpAccess: (args: Args) => Access = (outerFnArgs) => {
 
 	return async (args) => {
 		const {
-			req: { payload, user },
-		} = args
+			req: { user },
+		} = args as unknown as { req: { user: UserWithTotp } }
 
 		if (!user) {
 			return false
@@ -30,9 +28,7 @@ export const totpAccess: (args: Args) => Access = (outerFnArgs) => {
 				return true
 			}
 		} else {
-			const tokenSecret = await getTotpSecret(user, payload)
-
-			if (tokenSecret) {
+			if (user.hasTotp) {
 				// TODO: Report `user as any` to Payload
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				if ((user as any)._strategy === 'totp') {
