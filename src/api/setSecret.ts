@@ -1,17 +1,19 @@
 import type { I18nClient } from '@payloadcms/translations'
-import type { PayloadHandler } from 'payload'
+import type { BasePayload, PayloadHandler } from 'payload'
 
 import { Secret, TOTP } from 'otpauth'
 
 import type { CustomTranslationsKeys, CustomTranslationsObject } from '../i18n.js'
-import type { PayloadTOTPConfig } from '../types.js'
+import type { PayloadTOTPConfig, UserWithTotp } from '../types.js'
 
 import { setCookie } from '../setCookie.js'
-import { getTotpSecret } from '../utilities/getTotpSecret.js'
 
 export function setSecret(pluginOptions: PayloadTOTPConfig) {
 	const handler: PayloadHandler = async (req) => {
-		const { payload, user } = req
+		const { payload, user } = req as unknown as {
+			payload: BasePayload
+			user: UserWithTotp
+		}
 		const i18n = req.i18n as unknown as I18nClient<
 			CustomTranslationsObject,
 			CustomTranslationsKeys
@@ -21,9 +23,7 @@ export function setSecret(pluginOptions: PayloadTOTPConfig) {
 			return Response.json({ message: i18n.t('error:unauthorized'), ok: false })
 		}
 
-		const totpSecret = await getTotpSecret(user, payload)
-
-		if (totpSecret) {
+		if (user.hasTotp) {
 			return Response.json({ message: i18n.t('totpPlugin:errors:alreadySet'), ok: false })
 		}
 
@@ -63,7 +63,7 @@ export function setSecret(pluginOptions: PayloadTOTPConfig) {
 
 		await payload.update({
 			id: user.id,
-			collection: user.collection,
+			collection: pluginOptions.collection,
 			data: {
 				totpSecret: data['secret'],
 			},
@@ -71,7 +71,7 @@ export function setSecret(pluginOptions: PayloadTOTPConfig) {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} as any) // TODO: Report this to Payload
 
-		const collection = payload.collections[user.collection]
+		const collection = payload.collections[pluginOptions.collection]
 
 		await setCookie({
 			authConfig: collection.config.auth,

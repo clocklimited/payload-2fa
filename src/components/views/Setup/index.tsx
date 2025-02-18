@@ -7,9 +7,8 @@ import { redirect } from 'next/navigation.js'
 import { Secret, TOTP } from 'otpauth'
 
 import type { CustomTranslationsKeys, CustomTranslationsObject } from '../../../i18n.js'
-import type { PayloadTOTPConfig } from '../../../types.js'
+import type { PayloadTOTPConfig, UserWithTotp } from '../../../types.js'
 
-import { getTotpSecret } from '../../../utilities/getTotpSecret.js'
 import QRCode from '../../QRCode/index.js'
 import Form from './Form.js'
 import styles from './index.module.css'
@@ -20,15 +19,17 @@ type Args = {
 } & AdminViewProps &
 	ServerComponentProps
 
-export const TOTPSetup: React.FC<Args> = async (args) => {
+export const TOTPSetup: React.FC<Args> = (args) => {
 	const i18n = args.i18n as I18nClient<CustomTranslationsObject, CustomTranslationsKeys>
 	const {
 		initPageResult: {
-			req: { payload, user },
+			req: { payload, user: _user },
 		},
 		pluginOptions,
 		searchParams: { back },
 	} = args
+
+	const user = _user as unknown as UserWithTotp
 
 	if (!user) {
 		const url = formatAdminURL({
@@ -39,9 +40,7 @@ export const TOTPSetup: React.FC<Args> = async (args) => {
 		redirect(url)
 	}
 
-	const totpSecret = await getTotpSecret(user, payload)
-
-	if (totpSecret) {
+	if (user.hasTotp) {
 		const url = formatAdminURL({
 			adminRoute: payload.config.routes.admin,
 			path: '/',

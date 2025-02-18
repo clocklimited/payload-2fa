@@ -2,22 +2,20 @@ import type { ServerComponentProps } from 'payload'
 
 import { formatAdminURL } from '@payloadcms/ui/shared'
 
-import type { PayloadTOTPConfig } from '../types.js'
+import type { PayloadTOTPConfig, UserWithTotp } from '../types.js'
 
-import { getTotpSecret } from '../utilities/getTotpSecret.js'
 import Redirect from './Redirect.js'
 
 type Args = {
 	children: React.ReactNode
 	pluginOptions: PayloadTOTPConfig
-} & ServerComponentProps
+	user: UserWithTotp
+} & Pick<ServerComponentProps, 'payload'>
 
 export const TOTPProvider = async (args: Args) => {
 	const { children, payload, pluginOptions, user } = args
 
-	const totpSecret = await getTotpSecret(user, payload)
-
-	if (user && totpSecret && user._strategy !== 'totp') {
+	if (user && user.hasTotp && user._strategy !== 'totp') {
 		const url = formatAdminURL({
 			adminRoute: payload.config.routes.admin,
 			path: '/verify-totp',
@@ -28,7 +26,7 @@ export const TOTPProvider = async (args: Args) => {
 				{children}
 			</Redirect>
 		)
-	} else if (user && !totpSecret && pluginOptions.forceSetup) {
+	} else if (user && !user.hasTotp && pluginOptions.forceSetup) {
 		const url = formatAdminURL({
 			adminRoute: payload.config.routes.admin,
 			path: '/setup-totp',

@@ -6,9 +6,8 @@ import { formatAdminURL } from '@payloadcms/ui/shared'
 import { redirect } from 'next/navigation.js'
 
 import type { CustomTranslationsKeys, CustomTranslationsObject } from '../../../i18n.js'
-import type { PayloadTOTPConfig } from '../../../types.js'
+import type { PayloadTOTPConfig, UserWithTotp } from '../../../types.js'
 
-import { getTotpSecret } from '../../../utilities/getTotpSecret.js'
 import Form from './Form.js'
 import styles from './index.module.css'
 
@@ -17,15 +16,17 @@ type Args = {
 } & AdminViewProps &
 	ServerComponentProps
 
-export const TOTPVerify: React.FC<Args> = async (args) => {
+export const TOTPVerify: React.FC<Args> = (args) => {
 	const i18n = args.i18n as I18nClient<CustomTranslationsObject, CustomTranslationsKeys>
 	const {
 		initPageResult: {
-			req: { payload, user },
+			req: { payload, user: _user },
 		},
 		pluginOptions,
 		searchParams: { back },
 	} = args
+
+	const user = _user as unknown as UserWithTotp
 
 	if (!user) {
 		const url = formatAdminURL({
@@ -36,11 +37,9 @@ export const TOTPVerify: React.FC<Args> = async (args) => {
 		redirect(url)
 	}
 
-	const totpSecret = await getTotpSecret(user, payload)
-
 	// TODO: Report `user as any` to Payload
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	if (!totpSecret || (totpSecret && (user as any)._strategy === 'totp')) {
+	if (!user.hasTotp || (user.hasTotp && (user as any)._strategy === 'totp')) {
 		const url = formatAdminURL({
 			adminRoute: payload.config.routes.admin,
 			path: '/',

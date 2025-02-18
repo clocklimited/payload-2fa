@@ -1,10 +1,11 @@
-import type { Config, TextField, UIField } from 'payload'
+import type { CheckboxField, Config, TextField, UIField } from 'payload'
 
 import type { PayloadTOTPConfig } from './types.js'
 
 import { removeEndpointHandler } from './api/remove.js'
 import { setSecret } from './api/setSecret.js'
 import { verifyToken } from './api/verifyToken.js'
+import { setHasTotp } from './hooks/setHasTotp.js'
 import { i18n } from './i18n.js'
 import { strategy } from './strategy.js'
 import { totpAccess } from './totpAccess.js'
@@ -19,6 +20,7 @@ export const payloadTotp =
 				components: {
 					...(config.admin?.components || {}),
 					providers: [
+						...(config.admin?.components?.providers || []),
 						{
 							path: 'payload-totp/rsc#TOTPProvider',
 							serverProps: {
@@ -141,6 +143,17 @@ export const payloadTotp =
 										disableListColumn: true,
 									},
 								} as UIField,
+								{
+									name: 'hasTotp',
+									type: 'checkbox',
+									admin: {
+										hidden: true,
+									},
+									hooks: {
+										afterRead: [setHasTotp(pluginOptions)],
+									},
+									virtual: true,
+								} as CheckboxField,
 							],
 						}
 					} else {
