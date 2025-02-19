@@ -23,7 +23,15 @@ export const TOTPSetup: React.FC<Args> = (args) => {
 	const i18n = args.i18n as I18nClient<CustomTranslationsObject, CustomTranslationsKeys>
 	const {
 		initPageResult: {
-			req: { payload, user: _user },
+			req: {
+				payload: {
+					config: {
+						routes: { admin: adminRoute, api: apiRoute },
+						serverURL,
+					},
+				},
+				user: _user,
+			},
 		},
 		pluginOptions,
 		searchParams: { back },
@@ -33,8 +41,9 @@ export const TOTPSetup: React.FC<Args> = (args) => {
 
 	if (!user) {
 		const url = formatAdminURL({
-			adminRoute: payload.config.routes.admin,
+			adminRoute,
 			path: '/login',
+			serverURL,
 		})
 
 		redirect(url)
@@ -42,8 +51,9 @@ export const TOTPSetup: React.FC<Args> = (args) => {
 
 	if (user.hasTotp) {
 		const url = formatAdminURL({
-			adminRoute: payload.config.routes.admin,
+			adminRoute,
 			path: '/',
+			serverURL,
 		})
 
 		redirect(url)
@@ -83,9 +93,11 @@ export const TOTPSetup: React.FC<Args> = (args) => {
 						.replace('{digits}', (pluginOptions.totp?.digits || 6).toString())}
 				</p>
 				<Form
+					apiRoute={apiRoute}
 					back={(typeof back === 'string' && back) || undefined}
 					length={pluginOptions.totp?.digits}
 					secret={secret.base32}
+					serverURL={serverURL}
 				/>
 			</div>
 		</MinimalTemplate>

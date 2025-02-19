@@ -20,7 +20,15 @@ export const TOTPVerify: React.FC<Args> = (args) => {
 	const i18n = args.i18n as I18nClient<CustomTranslationsObject, CustomTranslationsKeys>
 	const {
 		initPageResult: {
-			req: { payload, user: _user },
+			req: {
+				payload: {
+					config: {
+						routes: { admin: adminRoute, api: apiRoute },
+						serverURL,
+					},
+				},
+				user: _user,
+			},
 		},
 		pluginOptions,
 		searchParams: { back },
@@ -30,8 +38,9 @@ export const TOTPVerify: React.FC<Args> = (args) => {
 
 	if (!user) {
 		const url = formatAdminURL({
-			adminRoute: payload.config.routes.admin,
+			adminRoute,
 			path: '/login',
+			serverURL,
 		})
 
 		redirect(url)
@@ -41,8 +50,9 @@ export const TOTPVerify: React.FC<Args> = (args) => {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	if (!user.hasTotp || (user.hasTotp && (user as any)._strategy === 'totp')) {
 		const url = formatAdminURL({
-			adminRoute: payload.config.routes.admin,
+			adminRoute,
 			path: '/',
+			serverURL,
 		})
 
 		redirect(url)
@@ -57,8 +67,10 @@ export const TOTPVerify: React.FC<Args> = (args) => {
 					.replace('{digits}', (pluginOptions.totp?.digits || 6).toString())}
 			</p>
 			<Form
+				apiRoute={apiRoute}
 				back={(typeof back === 'string' && back) || undefined}
 				length={pluginOptions.totp?.digits}
+				serverURL={serverURL}
 			/>
 		</MinimalTemplate>
 	)

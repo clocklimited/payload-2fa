@@ -17,7 +17,16 @@ type Args = {
 }
 
 export const Remove: React.FC<Args> = (args) => {
-	const { i18n, pluginOptions } = args
+	const {
+		i18n,
+		payload: {
+			config: {
+				routes: { api: apiRoute },
+				serverURL,
+			},
+		},
+		pluginOptions,
+	} = args
 
 	return (
 		<MinimalTemplate className={styles.root}>
@@ -27,7 +36,7 @@ export const Remove: React.FC<Args> = (args) => {
 					.t('totpPlugin:setup:enterCode')
 					.replace('{digits}', (pluginOptions.totp?.digits || 6).toString())}
 			</p>
-			<Form length={pluginOptions.totp?.digits} />
+			<Form apiRoute={apiRoute} length={pluginOptions.totp?.digits} serverURL={serverURL} />
 		</MinimalTemplate>
 	)
 }

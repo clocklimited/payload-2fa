@@ -13,12 +13,23 @@ type Args = {
 } & Pick<ServerComponentProps, 'payload'>
 
 export const TOTPProvider = async (args: Args) => {
-	const { children, payload, pluginOptions, user } = args
+	const {
+		children,
+		payload: {
+			config: {
+				routes: { admin: adminRoute },
+				serverURL,
+			},
+		},
+		pluginOptions,
+		user,
+	} = args
 
 	if (user && user.hasTotp && user._strategy !== 'totp') {
 		const url = formatAdminURL({
-			adminRoute: payload.config.routes.admin,
+			adminRoute,
 			path: '/verify-totp',
+			serverURL,
 		})
 
 		return (
@@ -28,8 +39,9 @@ export const TOTPProvider = async (args: Args) => {
 		)
 	} else if (user && !user.hasTotp && pluginOptions.forceSetup) {
 		const url = formatAdminURL({
-			adminRoute: payload.config.routes.admin,
+			adminRoute,
 			path: '/setup-totp',
+			serverURL,
 		})
 
 		return (
