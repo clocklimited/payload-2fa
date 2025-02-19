@@ -9,111 +9,137 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { v4 as uuidv4 } from 'uuid'
 
-type ISetupResult = Promise<{
-	port: number
-	baseURL: string
-	teardown: () => Promise<void>
-}>
+import type { ISetupArgs, ISetupResult } from './types'
 
 export const test = base.extend<
 	{
 		helpers: {
-			createFirstUser: (args: { page: Page; baseURL: string }) => Promise<void>
-			setupTotp: (args: { page: Page; baseURL: string }) => Promise<{ totpSecret: string }>
+			createFirstUser: (args: {
+				page: Page
+				baseURL: string
+				adminRoute?: string
+			}) => Promise<void>
+			setupTotp: (args: {
+				page: Page
+				baseURL: string
+				adminRoute?: string
+			}) => Promise<{ totpSecret: string }>
 		}
 	},
 	{
-		setup: (args?: { forceSetup?: boolean }) => ISetupResult
+		setup: (args?: ISetupArgs) => ISetupResult
 	}
 >({
 	setup: [
 		async ({}, use) => {
-			await use(async ({ forceSetup }: any = {}) => {
-				const port = await getPort({ port: portNumbers(3000, 3100) })
-				const dbName = `payload-totp-${uuidv4()}`
-				const dbPath = `./tmp/${dbName}`
-				await mkdir(dbPath, { recursive: true })
-				const baseURL = `http://localhost:${port}`
+			await use(
+				async ({
+					forceSetup,
+					overrideBaseURL,
+					overridePort,
+					adminRoute = '/admin',
+					apiRoute = '/api',
+					serverURL = '',
+				}: ISetupArgs = {}) => {
+					const port = overridePort || (await getPort({ port: portNumbers(3000, 3099) }))
+					const dbName = `payload-totp-${uuidv4()}`
+					const dbPath = `./tmp/${dbName}`
+					await mkdir(dbPath, { recursive: true })
+					const baseURL = overrideBaseURL || `http://localhost:${port}`
 
-				const mongod = await MongoMemoryServer.create({
-					instance: {
-						dbName,
-						dbPath,
-						port: await getPort({ port: portNumbers(27017, 27117) }),
-					},
-				})
+					const mongod = await MongoMemoryServer.create({
+						instance: {
+							dbName,
+							dbPath,
+							port: await getPort({ port: portNumbers(27017, 27117) }),
+						},
+					})
 
-				const child = spawn('pnpm', ['dev:start'], {
-					stdio: 'inherit',
-					cwd: path.join(path.dirname(fileURLToPath(import.meta.url)), '..'),
-					shell: platform() === 'win32',
-					env: {
-						...process.env,
-						NODE_ENV: 'production',
-						PORT: port.toString(),
-						FORCE_SETUP: forceSetup ? '1' : undefined,
-						DATABASE_URI: `${mongod.getUri()}&retryWrites=true`,
-					},
-				})
+					const child = spawn('pnpm', ['dev:start'], {
+						stdio: 'inherit',
+						cwd: path.join(path.dirname(fileURLToPath(import.meta.url)), '..'),
+						shell: platform() === 'win32',
+						env: {
+							...process.env,
+							NODE_ENV: 'production',
+							PORT: port.toString(),
+							FORCE_SETUP: forceSetup ? '1' : undefined,
+							DATABASE_URI: `${mongod.getUri()}&retryWrites=true`,
+							ADMIN_ROUTE: adminRoute,
+							API_ROUTE: apiRoute,
+							SERVER_URL: serverURL,
+						},
+					})
 
-				await new Promise((resolve, reject) => {
-					const timeout = setTimeout(() => reject(new Error('Server timeout')), 10000)
+					await new Promise((resolve, reject) => {
+						const timeout = setTimeout(() => reject(new Error('Server timeout')), 10000)
 
-					const interval = setInterval(async () => {
-						try {
-							const response = await fetch(`${baseURL}/admin`)
-							if (response.ok) {
-								clearTimeout(timeout)
-								clearInterval(interval)
-								resolve(null)
+						const interval = setInterval(async () => {
+							try {
+								const response = await fetch(`${baseURL}${adminRoute}`)
+								if (response.ok) {
+									clearTimeout(timeout)
+									clearInterval(interval)
+									resolve(null)
+								}
+							} catch (err) {}
+						}, 500)
+					})
+
+					return {
+						port,
+						baseURL,
+						teardown: async () => {
+							await new Promise((resolve, reject) => {
+								child.on('close', resolve)
+								child.on('error', reject)
+								child.kill()
+							})
+
+							if (mongod) {
+								await mongod.stop()
 							}
-						} catch (err) {}
-					}, 500)
-				})
 
-				return {
-					port,
-					baseURL,
-					teardown: async () => {
-						await new Promise((resolve, reject) => {
-							child.on('close', resolve)
-							child.on('error', reject)
-							child.kill()
-						})
-
-						if (mongod) {
-							await mongod.stop()
-						}
-
-						rm(path.resolve(dbPath), { recursive: true })
-					},
-				}
-			})
+							rm(path.resolve(dbPath), { recursive: true })
+						},
+					}
+				},
+			)
 		},
 		{ scope: 'worker' },
 	],
 	helpers: async ({}, use) => {
 		await use({
-			createFirstUser: async ({ page, baseURL }: { page: Page; baseURL: string }) => {
-				await page.goto(`${baseURL}/admin/create-first-user`)
+			createFirstUser: async ({
+				page,
+				baseURL,
+				adminRoute = '/admin',
+			}: {
+				page: Page
+				baseURL: string
+				adminRoute?: string
+			}) => {
+				await page.goto(`${baseURL}${adminRoute}/create-first-user`)
 				await page.getByLabel('Email').pressSequentially('human@domain.com')
 				await page.getByLabel('New Password').pressSequentially('123456')
 				await page.getByLabel('Confirm Password').pressSequentially('123456')
 
 				await page.getByRole('button', { name: 'Create' }).click({ delay: 1000 })
 
-				await page.waitForURL(`${baseURL}/admin`)
+				await page.waitForURL(`${baseURL}${adminRoute}`)
 			},
 			setupTotp: async ({
 				page,
 				baseURL,
 				back = '/admin',
+				adminRoute = '/admin',
 			}: {
 				page: Page
 				baseURL: string
 				back?: string
+				adminRoute?: string
 			}) => {
-				await page.goto(`${baseURL}/admin/setup-totp?back=${encodeURI(back)}`)
+				await page.goto(`${baseURL}${adminRoute}/setup-totp?back=${encodeURI(back)}`)
 				await page.getByRole('button', { name: 'Add code manually' }).click()
 				const totpSecret = await page.getByRole('code').textContent()
 

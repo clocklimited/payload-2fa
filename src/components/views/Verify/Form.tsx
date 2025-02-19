@@ -10,11 +10,13 @@ import type { IResponse } from '../../../api/verifyToken.js'
 import OTPInput from '../../OTPInput/index.js'
 
 type Args = {
+	apiRoute: string
 	back?: string
 	length?: number
+	serverURL: string
 }
 
-export default function OTPForm({ back, length }: Args) {
+export default function OTPForm({ apiRoute, back, length, serverURL }: Args) {
 	const [isPending, setIsPending] = useState(false)
 	const form = useRef<HTMLFormElement>(null)
 
@@ -24,32 +26,35 @@ export default function OTPForm({ back, length }: Args) {
 		}
 	}
 
-	const asyncOperation = async (event: React.FormEvent<HTMLFormElement>) => {
-		event.preventDefault()
-		event.stopPropagation()
+	const asyncOperation = useCallback(
+		async (event: React.FormEvent<HTMLFormElement>) => {
+			event.preventDefault()
+			event.stopPropagation()
 
-		setIsPending(true)
+			setIsPending(true)
 
-		const formData = new FormData(event.target as HTMLFormElement)
+			const formData = new FormData(event.target as HTMLFormElement)
 
-		const res = await fetch('/api/verify-totp', {
-			body: JSON.stringify(Object.fromEntries(formData)),
-			credentials: 'include',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			method: 'post',
-		})
+			const res = await fetch(`${serverURL}${apiRoute}/verify-totp`, {
+				body: JSON.stringify(Object.fromEntries(formData)),
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				method: 'post',
+			})
 
-		const data = (await res.json()) as IResponse
+			const data = (await res.json()) as IResponse
 
-		if (!data.ok && data.message) {
-			toast.error(data.message)
-			return false
-		}
+			if (!data.ok && data.message) {
+				toast.error(data.message)
+				return false
+			}
 
-		return true
-	}
+			return true
+		},
+		[serverURL, apiRoute],
+	)
 
 	const handleSubmit: React.FormEventHandler<HTMLFormElement> = useCallback(
 		(event) => {
@@ -72,7 +77,7 @@ export default function OTPForm({ back, length }: Args) {
 					setIsPending(false)
 				})
 		},
-		[back],
+		[back, asyncOperation],
 	)
 
 	return (

@@ -19,6 +19,11 @@ export default buildConfig({
 			baseDir: path.resolve(dirname),
 		},
 	},
+	routes: {
+		admin: process.env.ADMIN_ROUTE || '/admin',
+		api: process.env.API_ROUTE || '/api',
+	},
+	serverURL: process.env.SERVER_URL || '',
 	collections: [
 		{
 			slug: 'users',
