@@ -25,6 +25,7 @@ test.describe('remove totp', () => {
 				page = await context.newPage()
 
 				await helpers.createFirstUser({ page, baseURL })
+				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
 				await helpers.setupTotp({ page, baseURL })
 			})
 
@@ -63,6 +64,7 @@ test.describe('remove totp', () => {
 				page = await context.newPage()
 
 				await helpers.createFirstUser({ page, baseURL })
+				await page.waitForURL(/^(.*?)\/admin$/g)
 				await page.goto(`${baseURL}/admin/account`)
 			})
 
@@ -215,6 +217,7 @@ test.describe('remove totp', () => {
 				page = await context.newPage()
 
 				await helpers.createFirstUser({ page, baseURL })
+				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
 				await helpers.setupTotp({ page, baseURL })
 				await page.goto(`${baseURL}/admin/account`)
 			})
@@ -244,6 +247,7 @@ test.describe('remove totp', () => {
 				page = await context.newPage()
 
 				await helpers.createFirstUser({ page, baseURL })
+				await page.waitForURL(/^(.*?)\/admin$/g)
 				await page.goto(`${baseURL}/admin/account`)
 			})
 

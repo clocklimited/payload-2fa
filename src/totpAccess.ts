@@ -19,9 +19,7 @@ export const totpAccess: (args: Args) => Access = (outerFnArgs) => {
 			return false
 		}
 
-		// TODO: Report `user as any` to Payload
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		if (pluginOptions.forceSetup && (user as any)._strategy === 'totp') {
+		if (pluginOptions.forceSetup && user._strategy === 'totp') {
 			if (originalAccess) {
 				return originalAccess(args)
 			} else {
@@ -29,9 +27,7 @@ export const totpAccess: (args: Args) => Access = (outerFnArgs) => {
 			}
 		} else {
 			if (user.hasTotp) {
-				// TODO: Report `user as any` to Payload
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				if ((user as any)._strategy === 'totp') {
+				if (user._strategy === 'totp') {
 					if (originalAccess) {
 						return originalAccess(args)
 					} else {

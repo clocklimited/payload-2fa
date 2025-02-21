@@ -58,18 +58,9 @@ test.describe('create first user', () => {
 			await expect(page.locator('css=#totp-ui-field')).not.toBeVisible()
 		})
 
-		test.fixme(
-			'should redirect to setup page after signup',
-			{
-				annotation: {
-					type: 'issue',
-					description: 'https://github.com/payloadcms/payload/issues/10674',
-				},
-			},
-			async ({ helpers }) => {
-				await helpers.createFirstUser({ page, baseURL })
-				await expect(page).toHaveURL(`${baseURL}/admin/setup-totp`)
-			},
-		)
+		test('should redirect to setup page after signup', async ({ helpers }) => {
+			await helpers.createFirstUser({ page, baseURL })
+			await expect(page).toHaveURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
+		})
 	})
 })

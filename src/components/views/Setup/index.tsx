@@ -34,7 +34,7 @@ export const TOTPSetup: React.FC<Args> = (args) => {
 			},
 		},
 		pluginOptions,
-		searchParams: { back },
+		searchParams: { back } = {},
 	} = args
 
 	const user = _user as unknown as UserWithTotp

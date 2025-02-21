@@ -27,6 +27,11 @@ test.describe('Setup TOTP', () => {
 					page = await browser.newPage()
 
 					await helpers.createFirstUser({ page, baseURL })
+					if (forceSetup) {
+						await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
+					} else {
+						await page.waitForURL(/^(.*?)\/admin$/g)
+					}
 					// navigate to setup TOTP page
 					await page.goto(`${baseURL}/admin/setup-totp`)
 				})
@@ -142,6 +147,7 @@ test.describe('Setup TOTP', () => {
 		test.describe('user is logged in', () => {
 			test.beforeAll(async ({ helpers }) => {
 				await helpers.createFirstUser({ page, baseURL })
+				await page.waitForURL(/^(.*?)\/admin$/g)
 			})
 
 			test.describe('should response error', () => {
