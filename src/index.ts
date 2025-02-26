@@ -5,6 +5,7 @@ import type { PayloadTOTPConfig } from './types.js'
 import { removeEndpointHandler } from './api/remove.js'
 import { setSecret } from './api/setSecret.js'
 import { verifyToken } from './api/verifyToken.js'
+import { deleteCookieAfterLogout } from './hooks/deleteCookieAfterLogout.js'
 import { setHasTotp } from './hooks/setHasTotp.js'
 import { i18n } from './i18n.js'
 import { strategy } from './strategy.js'
@@ -155,6 +156,13 @@ export const payloadTotp =
 									virtual: true,
 								} as CheckboxField,
 							],
+							hooks: {
+								...(collection.hooks || {}),
+								afterLogout: [
+									...(collection.hooks?.afterLogout || []),
+									deleteCookieAfterLogout,
+								],
+							},
 						}
 					} else {
 						return {
