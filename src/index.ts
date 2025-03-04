@@ -123,6 +123,9 @@ export const payloadTotp =
 										update: () => false,
 									},
 									admin: {
+										disableBulkEdit: true,
+										disableListColumn: true,
+										disableListFilter: true,
 										hidden: true,
 									},
 									disableBulkEdit: true,
@@ -147,7 +150,14 @@ export const payloadTotp =
 								{
 									name: 'hasTotp',
 									type: 'checkbox',
+									access: {
+										read: ({ data, req: { user } }) =>
+											data && user && data?.id === user?.id,
+									},
 									admin: {
+										disableBulkEdit: true,
+										disableListColumn: true,
+										disableListFilter: true,
 										hidden: true,
 									},
 									hooks: {

@@ -109,10 +109,10 @@
 		"uuid": "^11.0.5"
 	},
 	"peerDependencies": {
-		"payload": "^3.29.0",
 		"@payloadcms/next": "^3.29.0",
 		"@payloadcms/translations": "^3.29.0",
-		"@payloadcms/ui": "^3.29.0"
+		"@payloadcms/ui": "^3.29.0",
+		"payload": "^3.29.0"
 	},
 	"engines": {
 		"node": "^18.20.2 || >=20.9.0",
