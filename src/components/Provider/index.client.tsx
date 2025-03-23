@@ -33,7 +33,8 @@ export default function TOTPProviderClient(args: Args) {
 		} else if (user && !user.hasTotp && forceSetup && pathname !== setupUrl) {
 			router.push(`${setupUrl}?back=${encodeURIComponent(pathname)}`)
 		}
-	}, [user, forceSetup, verifyUrl, setupUrl, pathname, router])
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [user])
 
 	return children
 }
