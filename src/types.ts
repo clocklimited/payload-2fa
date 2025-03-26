@@ -3,6 +3,7 @@ import type { CollectionSlug, User } from 'payload'
 
 export type PayloadTOTPConfig = {
 	collection: CollectionSlug
+	disableAccessWrapper?: boolean
 	disabled?: boolean
 	forceSetup?: boolean
 	totp?: Pick<TOTP, 'algorithm' | 'digits' | 'issuer' | 'period'>

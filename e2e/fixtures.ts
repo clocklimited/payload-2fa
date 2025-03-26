@@ -10,9 +10,10 @@ import { fileURLToPath } from 'url'
 import { v4 as uuidv4 } from 'uuid'
 
 import { createFirstUser } from './helpers/create-first-user'
-import type { ISetupArgs, ISetupResult } from './types'
-import { logout } from './helpers/logout'
 import { login } from './helpers/login'
+import { logout } from './helpers/logout'
+import { promptTotp } from './helpers/prompt-totp'
+import type { ISetupArgs, ISetupResult } from './types'
 
 export const test = base.extend<
 	{
@@ -20,6 +21,7 @@ export const test = base.extend<
 			createFirstUser: typeof createFirstUser
 			logout: typeof logout
 			login: typeof login
+			promptTotp: typeof promptTotp
 			setupTotp: (args: {
 				page: Page
 				baseURL: string
@@ -36,6 +38,7 @@ export const test = base.extend<
 			await use(
 				async ({
 					forceSetup,
+					disableAccessWrapper,
 					overrideBaseURL,
 					overridePort,
 					adminRoute = '/admin',
@@ -65,6 +68,7 @@ export const test = base.extend<
 							NODE_ENV: 'production',
 							PORT: port.toString(),
 							FORCE_SETUP: forceSetup ? '1' : undefined,
+							DISABLE_ACCESS_WRAPPER: disableAccessWrapper ? '1' : undefined,
 							DATABASE_URI: `${mongod.getUri()}&retryWrites=true`,
 							ADMIN_ROUTE: adminRoute,
 							API_ROUTE: apiRoute,
@@ -114,6 +118,7 @@ export const test = base.extend<
 			createFirstUser,
 			logout,
 			login,
+			promptTotp,
 			setupTotp: async ({
 				page,
 				baseURL,

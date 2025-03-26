@@ -1,5 +1,6 @@
 export interface ISetupArgs {
 	forceSetup?: boolean
+	disableAccessWrapper?: boolean
 	overrideBaseURL?: string
 	overridePort?: number
 	adminRoute?: string
