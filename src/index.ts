@@ -11,7 +11,7 @@ import { i18n } from './i18n.js'
 import { strategy } from './strategy.js'
 import { totpAccess } from './totpAccess.js'
 
-export const payloadTotp =
+const payloadTotp =
 	(pluginOptions: PayloadTOTPConfig) =>
 	(config: Config): Config => {
 		return {
@@ -65,43 +65,54 @@ export const payloadTotp =
 							...collection,
 							access: {
 								...(collection.access || {}),
-								create: collection.custom?.totp?.disableAccessWrapper?.create
-									? collection.access?.create
-									: totpAccess({
-											originalAccess: collection.access?.create,
-											pluginOptions,
-										}),
-								delete: collection.custom?.totp?.disableAccessWrapper?.delete
-									? collection.access?.delete
-									: totpAccess({
-											originalAccess: collection.access?.delete,
-											pluginOptions,
-										}),
-								read: collection.custom?.totp?.disableAccessWrapper?.read
-									? collection.access?.read
-									: totpAccess({
-											originalAccess: collection.access?.read,
-											pluginOptions,
-										}),
-								readVersions: collection.custom?.totp?.disableAccessWrapper
-									?.readVersions
-									? collection.access?.readVersions
-									: totpAccess({
-											originalAccess: collection.access?.readVersions,
-											pluginOptions,
-										}),
-								unlock: collection.custom?.totp?.disableAccessWrapper?.unlock
-									? collection.access?.unlock
-									: totpAccess({
-											originalAccess: collection.access?.unlock,
-											pluginOptions,
-										}),
-								update: collection.custom?.totp?.disableAccessWrapper?.update
-									? collection.access?.update
-									: totpAccess({
-											originalAccess: collection.access?.update,
-											pluginOptions,
-										}),
+								create:
+									pluginOptions.disableAccessWrapper ||
+									collection.custom?.totp?.disableAccessWrapper?.create
+										? collection.access?.create
+										: totpAccess({
+												originalAccess: collection.access?.create,
+												pluginOptions,
+											}),
+								delete:
+									pluginOptions.disableAccessWrapper ||
+									collection.custom?.totp?.disableAccessWrapper?.delete
+										? collection.access?.delete
+										: totpAccess({
+												originalAccess: collection.access?.delete,
+												pluginOptions,
+											}),
+								read:
+									pluginOptions.disableAccessWrapper ||
+									collection.custom?.totp?.disableAccessWrapper?.read
+										? collection.access?.read
+										: totpAccess({
+												originalAccess: collection.access?.read,
+												pluginOptions,
+											}),
+								readVersions:
+									pluginOptions.disableAccessWrapper ||
+									collection.custom?.totp?.disableAccessWrapper?.readVersions
+										? collection.access?.readVersions
+										: totpAccess({
+												originalAccess: collection.access?.readVersions,
+												pluginOptions,
+											}),
+								unlock:
+									pluginOptions.disableAccessWrapper ||
+									collection.custom?.totp?.disableAccessWrapper?.unlock
+										? collection.access?.unlock
+										: totpAccess({
+												originalAccess: collection.access?.unlock,
+												pluginOptions,
+											}),
+								update:
+									pluginOptions.disableAccessWrapper ||
+									collection.custom?.totp?.disableAccessWrapper?.update
+										? collection.access?.update
+										: totpAccess({
+												originalAccess: collection.access?.update,
+												pluginOptions,
+											}),
 							},
 							auth: {
 								...(typeof collection.auth === 'object' ? collection.auth : {}),
@@ -179,43 +190,54 @@ export const payloadTotp =
 							...collection,
 							access: {
 								...(collection.access || {}),
-								create: collection.custom?.totp?.disableAccessWrapper?.create
-									? collection.access?.create
-									: totpAccess({
-											originalAccess: collection.access?.create,
-											pluginOptions,
-										}),
-								delete: collection.custom?.totp?.disableAccessWrapper?.delete
-									? collection.access?.delete
-									: totpAccess({
-											originalAccess: collection.access?.delete,
-											pluginOptions,
-										}),
-								read: collection.custom?.totp?.disableAccessWrapper?.read
-									? collection.access?.read
-									: totpAccess({
-											originalAccess: collection.access?.read,
-											pluginOptions,
-										}),
-								readVersions: collection.custom?.totp?.disableAccessWrapper
-									?.readVersions
-									? collection.access?.readVersions
-									: totpAccess({
-											originalAccess: collection.access?.readVersions,
-											pluginOptions,
-										}),
-								unlock: collection.custom?.totp?.disableAccessWrapper?.unlock
-									? collection.access?.unlock
-									: totpAccess({
-											originalAccess: collection.access?.unlock,
-											pluginOptions,
-										}),
-								update: collection.custom?.totp?.disableAccessWrapper?.update
-									? collection.access?.update
-									: totpAccess({
-											originalAccess: collection.access?.update,
-											pluginOptions,
-										}),
+								create:
+									pluginOptions.disableAccessWrapper ||
+									collection.custom?.totp?.disableAccessWrapper?.create
+										? collection.access?.create
+										: totpAccess({
+												originalAccess: collection.access?.create,
+												pluginOptions,
+											}),
+								delete:
+									pluginOptions.disableAccessWrapper ||
+									collection.custom?.totp?.disableAccessWrapper?.delete
+										? collection.access?.delete
+										: totpAccess({
+												originalAccess: collection.access?.delete,
+												pluginOptions,
+											}),
+								read:
+									pluginOptions.disableAccessWrapper ||
+									collection.custom?.totp?.disableAccessWrapper?.read
+										? collection.access?.read
+										: totpAccess({
+												originalAccess: collection.access?.read,
+												pluginOptions,
+											}),
+								readVersions:
+									pluginOptions.disableAccessWrapper ||
+									collection.custom?.totp?.disableAccessWrapper?.readVersions
+										? collection.access?.readVersions
+										: totpAccess({
+												originalAccess: collection.access?.readVersions,
+												pluginOptions,
+											}),
+								unlock:
+									pluginOptions.disableAccessWrapper ||
+									collection.custom?.totp?.disableAccessWrapper?.unlock
+										? collection.access?.unlock
+										: totpAccess({
+												originalAccess: collection.access?.unlock,
+												pluginOptions,
+											}),
+								update:
+									pluginOptions.disableAccessWrapper ||
+									collection.custom?.totp?.disableAccessWrapper?.update
+										? collection.access?.update
+										: totpAccess({
+												originalAccess: collection.access?.update,
+												pluginOptions,
+											}),
 							},
 						}
 					}
@@ -245,30 +267,38 @@ export const payloadTotp =
 						...global,
 						access: {
 							...(global.access || {}),
-							read: global.custom?.totp?.disableAccessWrapper?.read
-								? global.access?.read
-								: totpAccess({
-										originalAccess: global.access?.read,
-										pluginOptions,
-									}),
-							readDrafts: global.custom?.totp?.disableAccessWrapper?.readDrafts
-								? global.access?.readDrafts
-								: totpAccess({
-										originalAccess: global.access?.readDrafts,
-										pluginOptions,
-									}),
-							readVersions: global.custom?.totp?.disableAccessWrapper?.readVersions
-								? global.access?.readVersions
-								: totpAccess({
-										originalAccess: global.access?.readVersions,
-										pluginOptions,
-									}),
-							update: global.custom?.totp?.disableAccessWrapper?.update
-								? global.access?.update
-								: totpAccess({
-										originalAccess: global.access?.update,
-										pluginOptions,
-									}),
+							read:
+								pluginOptions.disableAccessWrapper ||
+								global.custom?.totp?.disableAccessWrapper?.read
+									? global.access?.read
+									: totpAccess({
+											originalAccess: global.access?.read,
+											pluginOptions,
+										}),
+							readDrafts:
+								pluginOptions.disableAccessWrapper ||
+								global.custom?.totp?.disableAccessWrapper?.readDrafts
+									? global.access?.readDrafts
+									: totpAccess({
+											originalAccess: global.access?.readDrafts,
+											pluginOptions,
+										}),
+							readVersions:
+								pluginOptions.disableAccessWrapper ||
+								global.custom?.totp?.disableAccessWrapper?.readVersions
+									? global.access?.readVersions
+									: totpAccess({
+											originalAccess: global.access?.readVersions,
+											pluginOptions,
+										}),
+							update:
+								pluginOptions.disableAccessWrapper ||
+								global.custom?.totp?.disableAccessWrapper?.update
+									? global.access?.update
+									: totpAccess({
+											originalAccess: global.access?.update,
+											pluginOptions,
+										}),
 						},
 					}
 				}),
@@ -276,3 +306,5 @@ export const payloadTotp =
 			i18n: i18n(config.i18n),
 		}
 	}
+
+export { payloadTotp, totpAccess }

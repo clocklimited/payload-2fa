@@ -1,5 +1,4 @@
 import { expect, Page } from '@playwright/test'
-import { Secret, TOTP } from 'otpauth'
 
 import { test } from './fixtures'
 
@@ -66,22 +65,7 @@ test.describe('users', () => {
 		})
 		await page.waitForURL(/^(.*?)\/admin\/verify-totp/g)
 
-		const totp = new TOTP({
-			algorithm: 'SHA1',
-			digits: 6,
-			issuer: 'Payload',
-			label: 'human@domain.com',
-			period: 30,
-			secret: Secret.fromBase32(totpSecret || ''),
-		})
-
-		const token = totp.generate()
-
-		await page
-			.locator('css=input:first-child[type="text"]')
-			.pressSequentially(token, { delay: 300 })
-
-		await page.waitForURL(/^(.*?)\/admin$/g)
+		await helpers.promptTotp({ page, totpSecret })
 	})
 
 	test.afterAll(async () => {
