@@ -31,9 +31,9 @@ export const TOTPProvider = async (args: Args) => {
 		serverURL: payload.config.serverURL,
 	})
 
-	if (user && user.hasTotp && user._strategy !== 'totp' && pathname !== verifyUrl) {
+	if (user && user.hasTotp && !['api-key', 'totp'].includes(user._strategy) && pathname !== verifyUrl) {
 		redirect(`${verifyUrl}?back=${encodeURIComponent(pathname)}`)
-	} else if (user && !user.hasTotp && pluginOptions.forceSetup && pathname !== setupUrl) {
+	} else if (user && !user.hasTotp && pluginOptions.forceSetup && pathname !== setupUrl && user._strategy !== 'api-key') {
 		redirect(`${setupUrl}?back=${encodeURIComponent(pathname)}`)
 	} else {
 		return (
