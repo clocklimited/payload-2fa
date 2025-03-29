@@ -19,7 +19,7 @@ export const totpAccess: (args: Args) => Access = (outerFnArgs) => {
 			return false
 		}
 
-		if (pluginOptions.forceSetup && user._strategy === 'totp') {
+		if ((pluginOptions.forceSetup && user._strategy === 'totp') || user._strategy === 'api-key') {
 			if (originalAccess) {
 				return originalAccess(args)
 			} else {

@@ -26,11 +26,11 @@ export default function TOTPProviderClient(args: Args) {
 			user &&
 			user.hasTotp &&
 			user._strategy &&
-			user._strategy !== 'totp' &&
+			!['api-key', 'totp'].includes(user._strategy) &&
 			pathname !== verifyUrl
 		) {
 			router.push(`${verifyUrl}?back=${encodeURIComponent(pathname)}`)
-		} else if (user && !user.hasTotp && forceSetup && pathname !== setupUrl) {
+		} else if (user && !user.hasTotp && forceSetup && pathname !== setupUrl && user._strategy !== 'api-key') {
 			router.push(`${setupUrl}?back=${encodeURIComponent(pathname)}`)
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
