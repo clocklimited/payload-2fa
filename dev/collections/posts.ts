@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { totpAccess } from 'payload-totp'
 
 export const posts: CollectionConfig = {
 	slug: 'posts',
@@ -7,6 +8,12 @@ export const posts: CollectionConfig = {
 	},
 	access: {
 		read: () => true,
+		create: (args) => {
+			return (
+				args.req.headers.get('authorization') === 'Bearer 123' ||
+				totpAccess(({ req: { user } }) => Boolean(user))(args)
+			)
+		},
 	},
 	fields: [
 		{
@@ -24,6 +31,7 @@ export const posts: CollectionConfig = {
 		totp: {
 			disableAccessWrapper: {
 				read: true,
+				create: true,
 			},
 		},
 	},
