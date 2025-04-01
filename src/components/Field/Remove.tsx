@@ -5,7 +5,7 @@ import type { Payload, User } from 'payload'
 
 import { Modal } from '@payloadcms/ui'
 
-import type { CustomTranslationsKeys, CustomTranslationsObject } from '../../i18n.js'
+import type { CustomTranslationsKeys, CustomTranslationsObject } from '../../i18n/types.js'
 import type { PayloadTOTPConfig } from '../../types.js'
 
 import { Remove as RemoveView } from '../views/Remove/index.js'

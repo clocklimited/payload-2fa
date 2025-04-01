@@ -3,7 +3,7 @@ import type { BasePayload, PayloadHandler } from 'payload'
 
 import { Secret, TOTP } from 'otpauth'
 
-import type { CustomTranslationsKeys, CustomTranslationsObject } from '../i18n.js'
+import type { CustomTranslationsKeys, CustomTranslationsObject } from '../i18n/types.js'
 import type { PayloadTOTPConfig, UserWithTotp } from '../types.js'
 
 import { getTotpSecret } from '../utilities/getTotpSecret.js'

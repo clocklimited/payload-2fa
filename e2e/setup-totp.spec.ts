@@ -2,7 +2,8 @@ import type { I18nOptions } from '@payloadcms/translations'
 import { expect, Page } from '@playwright/test'
 import { Secret, TOTP } from 'otpauth'
 
-import { type CustomTranslationsObject, i18n as i18nFn } from '../src/i18n'
+import { type CustomTranslationsObject } from '../src/i18n/types.js'
+import { i18n as i18nFn } from '../src/i18n/index.js'
 import { test } from './fixtures'
 
 test.describe.configure({ mode: 'parallel' })
