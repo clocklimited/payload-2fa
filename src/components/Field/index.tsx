@@ -1,7 +1,7 @@
 import type { I18nClient } from '@payloadcms/translations'
 import type { TextFieldServerProps } from 'payload'
 
-import type { CustomTranslationsKeys, CustomTranslationsObject } from '../../i18n.js'
+import type { CustomTranslationsKeys, CustomTranslationsObject } from '../../i18n/types.js'
 import type { PayloadTOTPConfig, UserWithTotp } from '../../types.js'
 
 import styles from './index.module.css'

@@ -5,7 +5,7 @@ import type { I18nClient } from '@payloadcms/translations'
 import { Button } from '@payloadcms/ui'
 import Link from 'next/link.js'
 
-import type { CustomTranslationsKeys, CustomTranslationsObject } from '../../i18n.js'
+import type { CustomTranslationsKeys, CustomTranslationsObject } from '../../i18n/types.js'
 
 type Args = {
 	backUrl?: string

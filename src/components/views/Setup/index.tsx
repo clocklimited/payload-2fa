@@ -6,7 +6,7 @@ import { formatAdminURL } from '@payloadcms/ui/shared'
 import { redirect } from 'next/navigation.js'
 import { Secret, TOTP } from 'otpauth'
 
-import type { CustomTranslationsKeys, CustomTranslationsObject } from '../../../i18n.js'
+import type { CustomTranslationsKeys, CustomTranslationsObject } from '../../../i18n/types.js'
 import type { PayloadTOTPConfig, UserWithTotp } from '../../../types.js'
 
 import QRCode from '../../QRCode/index.js'

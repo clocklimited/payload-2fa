@@ -7,7 +7,7 @@ import { setSecret } from './api/setSecret.js'
 import { verifyToken } from './api/verifyToken.js'
 import { deleteCookieAfterLogout } from './hooks/deleteCookieAfterLogout.js'
 import { setHasTotp } from './hooks/setHasTotp.js'
-import { i18n } from './i18n.js'
+import { i18n } from './i18n/index.js'
 import { strategy } from './strategy.js'
 import { totpAccess } from './totpAccess.js'
 
