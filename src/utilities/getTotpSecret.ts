@@ -15,16 +15,21 @@ export async function getTotpSecret({
 		return undefined
 	}
 
-	const { totpSecret } = (await payload.findByID({
-		id: user.id,
-		collection,
-		overrideAccess: true,
-		select: {
-			totpSecret: true,
-		},
-		showHiddenFields: true,
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	} as any)) as { totpSecret?: null | string } // TODO: Report this to Payload
+	let totpSecret: string | undefined
 
-	return totpSecret as string | undefined
+	try {
+		const result = (await payload.findByID({
+			id: user.id,
+			collection,
+			overrideAccess: true,
+			select: {
+				totpSecret: true,
+			},
+			showHiddenFields: true,
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		} as any)) as { totpSecret?: null | string } // TODO: Report this to Payload
+		totpSecret = result.totpSecret === null ? undefined : result.totpSecret
+	} catch (err) {}
+
+	return totpSecret
 }
