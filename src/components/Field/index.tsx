@@ -53,7 +53,7 @@ export const TOTPField = (args: Args) => {
 					/>
 				)}
 				{!user.hasTotp && !pluginOptions.forceSetup && (
-					<Setup payload={payload} backUrl={url} i18n={i18n} />
+					<Setup backUrl={url} i18n={i18n} payload={payload} />
 				)}
 			</div>
 		</div>

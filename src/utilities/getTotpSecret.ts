@@ -29,6 +29,7 @@ export async function getTotpSecret({
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} as any)) as { totpSecret?: null | string } // TODO: Report this to Payload
 		totpSecret = result.totpSecret === null ? undefined : result.totpSecret
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars, no-empty
 	} catch (err) {}
 
 	return totpSecret
