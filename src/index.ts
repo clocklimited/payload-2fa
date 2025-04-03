@@ -31,7 +31,22 @@ const payloadTotp =
 					],
 					views: {
 						...(config.admin?.components?.views || {}),
+						// Backslash versions are standard and works in general.
+						// But it doesn't work well when you're using PayloadCMS
+						// without `/admin`, but `/`.
 						SetupTOTP: {
+							Component: {
+								path: 'payload-totp/rsc#TOTPSetup',
+								serverProps: {
+									pluginOptions,
+								},
+							},
+							exact: true,
+							path: 'setup-totp',
+							sensitive: false,
+							strict: true,
+						},
+						SetupTOTPBackslash: {
 							Component: {
 								path: 'payload-totp/rsc#TOTPSetup',
 								serverProps: {
@@ -44,6 +59,18 @@ const payloadTotp =
 							strict: true,
 						},
 						VerifyTOTP: {
+							Component: {
+								path: 'payload-totp/rsc#TOTPVerify',
+								serverProps: {
+									pluginOptions,
+								},
+							},
+							exact: true,
+							path: 'verify-totp',
+							sensitive: false,
+							strict: true,
+						},
+						VerifyTOTPBackslash: {
 							Component: {
 								path: 'payload-totp/rsc#TOTPVerify',
 								serverProps: {
