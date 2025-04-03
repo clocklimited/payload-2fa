@@ -6,7 +6,7 @@ export type PayloadTOTPConfig = {
 	disableAccessWrapper?: boolean
 	disabled?: boolean
 	forceSetup?: boolean
-	totp?: Pick<TOTP, 'algorithm' | 'digits' | 'issuer' | 'period'>
+	totp?: Partial<Pick<TOTP, 'algorithm' | 'digits' | 'issuer' | 'period'>>
 }
 
 export type UserWithTotp = {
