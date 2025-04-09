@@ -1,0 +1,44 @@
+name: Functionality Bug
+description: '[REPRODUCTION REQUIRED] - Create a bug report'
+labels: ['status: needs-triage', 'validate-reproduction']
+body:
+  - type: textarea
+    attributes:
+      label: Describe the Bug
+    validations:
+      required: true
+
+  - type: input
+    id: reproduction-link
+    attributes:
+      label: Link to the code that reproduces this issue
+      description: >-
+        _REQUIRED_: Please provide a link to your reproduction. Note, if the URL is invalid (404 or a private repository), we may close the issue.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Reproduction Steps
+      description: Steps to reproduce the behavior, please provide a clear description of how to reproduce the issue, based on the linked minimal reproduction. Screenshots can be provided in the issue body below.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Environment Info
+      description: Paste output from `pnpm payload info` _or_ Payload, Node.js, and Next.js versions. Please avoid using "latest"—specific version numbers help us accurately diagnose and resolve issues.
+      render: text
+      placeholder: |
+        Payload:
+        Node.js:
+        Next.js:
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: Before submitting the issue, go through the steps you've written down to make sure the steps provided are detailed and clear.
+  - type: markdown
+    attributes:
+      value: These steps are used to add integration tests to ensure the same issue does not happen again. Thanks in advance!
