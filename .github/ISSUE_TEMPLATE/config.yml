@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Feature Request
+    url: https://github.com/GeorgeHulpoi/payload-totp/discussions
+    about: Suggest an idea to improve Payload TOTP in our GitHub Discussions
+  - name: Question about the plugin
+    url: https://github.com/GeorgeHulpoi/payload-totp/discussions
+    about: Please ask plugin related questions in our GitHub Discussions
