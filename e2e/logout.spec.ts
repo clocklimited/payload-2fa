@@ -1,4 +1,6 @@
-import { expect, Page } from '@playwright/test'
+import type { Page } from '@playwright/test';
+
+import { expect } from '@playwright/test'
 
 import { test } from './fixtures'
 
@@ -9,14 +11,14 @@ test.describe('Log out', () => {
 	let teardown: VoidFunction
 	let baseURL: string
 
-	test.beforeAll(async ({ setup, browser, helpers }) => {
+	test.beforeAll(async ({ browser, helpers, setup }) => {
 		const setupResult = await setup()
 		teardown = setupResult.teardown
 		baseURL = setupResult.baseURL
 		page = await browser.newPage()
-		await helpers.createFirstUser({ page, baseURL })
+		await helpers.createFirstUser({ baseURL, page })
 		await page.waitForURL(/^(.*?)\/admin$/g)
-		await helpers.setupTotp({ page, baseURL })
+		await helpers.setupTotp({ baseURL, page })
 		await page.goto(`${baseURL}/admin/account`)
 	})
 

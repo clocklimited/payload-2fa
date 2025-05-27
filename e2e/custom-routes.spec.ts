@@ -1,9 +1,11 @@
 import type { I18nOptions } from '@payloadcms/translations'
-import { expect, Page } from '@playwright/test'
+import type { Page } from '@playwright/test';
+
+import { expect } from '@playwright/test'
 import { Secret, TOTP } from 'otpauth'
 
-import { type CustomTranslationsObject } from '../src/i18n/types.js'
 import { i18n as i18nFn } from '../src/i18n/index.js'
+import { type CustomTranslationsObject } from '../src/i18n/types.js'
 import { test } from './fixtures'
 
 test.describe.configure({ mode: 'serial' })
@@ -15,12 +17,12 @@ test.describe('Custom routes', () => {
 	let baseURL: string
 	let totpSecret: string
 
-	test.beforeAll(async ({ setup, browser }) => {
+	test.beforeAll(async ({ browser, setup }) => {
 		const setupResult = await setup({
-			overrideBaseURL: 'http://127.0.0.1:3100',
-			overridePort: 3100,
 			adminRoute: '/admin2',
 			apiRoute: '/api2',
+			overrideBaseURL: 'http://127.0.0.1:3100',
+			overridePort: 3100,
 			serverURL: 'http://127.0.0.1:3100',
 		})
 		teardown = setupResult.teardown
@@ -34,12 +36,12 @@ test.describe('Custom routes', () => {
 	})
 
 	test('should redirect to dashboard after signup', async ({ helpers }) => {
-		await helpers.createFirstUser({ page, baseURL, adminRoute: '/admin2' })
+		await helpers.createFirstUser({ adminRoute: '/admin2', baseURL, page })
 		await expect(page).toHaveURL(/^(.*?)\/admin2$/g)
 	})
 
 	test('should set totp', async ({ helpers }) => {
-		const totpResult = await helpers.setupTotp({ page, baseURL, adminRoute: '/admin2' })
+		const totpResult = await helpers.setupTotp({ adminRoute: '/admin2', baseURL, page })
 		totpSecret = totpResult.totpSecret
 		await page.goto(`${baseURL}/admin2`)
 	})

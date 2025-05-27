@@ -1,15 +1,15 @@
 export interface ISetupArgs {
-	forceSetup?: boolean
-	disableAccessWrapper?: boolean
-	overrideBaseURL?: string
-	overridePort?: number
 	adminRoute?: string
 	apiRoute?: string
+	disableAccessWrapper?: boolean
+	forceSetup?: boolean
+	overrideBaseURL?: string
+	overridePort?: number
 	serverURL?: string
 }
 
 export type ISetupResult = Promise<{
-	port: number
 	baseURL: string
+	port: number
 	teardown: () => Promise<void>
 }>

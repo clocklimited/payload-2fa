@@ -1,9 +1,11 @@
 import type { I18nOptions } from '@payloadcms/translations'
-import { expect, Page } from '@playwright/test'
+import type { Page } from '@playwright/test';
+
+import { expect } from '@playwright/test'
 import { Secret, TOTP } from 'otpauth'
 
-import { type CustomTranslationsObject } from '../src/i18n/types.js'
 import { i18n as i18nFn } from '../src/i18n/index.js'
+import { type CustomTranslationsObject } from '../src/i18n/types.js'
 import { test } from './fixtures'
 
 test.describe.configure({ mode: 'parallel' })
@@ -21,15 +23,15 @@ test.describe('Setup TOTP', () => {
 				let teardown: VoidFunction
 				let baseURL: string
 
-				test.beforeAll(async ({ setup, browser, helpers }) => {
+				test.beforeAll(async ({ browser, helpers, setup }) => {
 					const setupResult = await setup({ forceSetup })
 					teardown = setupResult.teardown
 					baseURL = setupResult.baseURL
 					page = await browser.newPage()
 
-					await helpers.createFirstUser({ page, baseURL })
+					await helpers.createFirstUser({ baseURL, page })
 					if (forceSetup) {
-						await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
+						await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*)?$/g)
 					} else {
 						await page.waitForURL(/^(.*?)\/admin$/g)
 					}
@@ -119,7 +121,7 @@ test.describe('Setup TOTP', () => {
 		let teardown: VoidFunction
 		let baseURL: string
 
-		test.beforeAll(async ({ setup, browser }) => {
+		test.beforeAll(async ({ browser, setup }) => {
 			const setupResult = await setup()
 			teardown = setupResult.teardown
 			baseURL = setupResult.baseURL
@@ -147,7 +149,7 @@ test.describe('Setup TOTP', () => {
 
 		test.describe('user is logged in', () => {
 			test.beforeAll(async ({ helpers }) => {
-				await helpers.createFirstUser({ page, baseURL })
+				await helpers.createFirstUser({ baseURL, page })
 				await page.waitForURL(/^(.*?)\/admin$/g)
 			})
 
@@ -167,8 +169,8 @@ test.describe('Setup TOTP', () => {
 				test('when body is not valid', async () => {
 					const res = await page.request.post(`${baseURL}/api/setup-totp`, {
 						data: {
-							token: 123456,
 							secret: 111111111,
+							token: 123456,
 						},
 					})
 					expect(res.ok()).toBeTruthy()
@@ -182,8 +184,8 @@ test.describe('Setup TOTP', () => {
 				test('when token is not valid', async () => {
 					const res = await page.request.post(`${baseURL}/api/setup-totp`, {
 						data: {
-							token: '123456',
 							secret: 'secret',
+							token: '123456',
 						},
 					})
 					expect(res.ok()).toBeTruthy()
@@ -211,8 +213,8 @@ test.describe('Setup TOTP', () => {
 
 				const res = await page.request.post(`${baseURL}/api/setup-totp`, {
 					data: {
-						token: totp.generate(),
 						secret: secret.base32,
+						token: totp.generate(),
 					},
 				})
 				expect(res.ok()).toBeTruthy()
@@ -223,8 +225,8 @@ test.describe('Setup TOTP', () => {
 			test('should response error when user already has TOTP', async () => {
 				const res = await page.request.post(`${baseURL}/api/setup-totp`, {
 					data: {
-						token: 123456,
 						secret: 111111111,
+						token: 123456,
 					},
 				})
 				expect(res.ok()).toBeTruthy()

@@ -5,20 +5,6 @@ export const settings: GlobalConfig = {
 	access: {
 		read: () => true,
 	},
-	fields: [
-		{
-			name: 'darkMode',
-			type: 'checkbox',
-			label: 'Dark Mode',
-			defaultValue: false,
-		},
-		{
-			name: 'maintenance',
-			type: 'checkbox',
-			label: 'Maintenance Mode',
-			defaultValue: false,
-		},
-	],
 	custom: {
 		totp: {
 			disableAccessWrapper: {
@@ -26,4 +12,18 @@ export const settings: GlobalConfig = {
 			},
 		},
 	},
+	fields: [
+		{
+			name: 'darkMode',
+			type: 'checkbox',
+			defaultValue: false,
+			label: 'Dark Mode',
+		},
+		{
+			name: 'maintenance',
+			type: 'checkbox',
+			defaultValue: false,
+			label: 'Maintenance Mode',
+		},
+	],
 }

@@ -1,4 +1,7 @@
-import { expect, Page } from '@playwright/test'
+import type { Page } from '@playwright/test';
+
+import { expect } from '@playwright/test'
+
 import { test } from './fixtures'
 
 test.describe.configure({ mode: 'parallel' })
@@ -11,7 +14,7 @@ test.describe('create first user', () => {
 		let teardown: VoidFunction
 		let baseURL: string
 
-		test.beforeAll(async ({ setup, browser }) => {
+		test.beforeAll(async ({ browser, setup }) => {
 			const setupResult = await setup()
 			teardown = setupResult.teardown
 			baseURL = setupResult.baseURL
@@ -29,7 +32,7 @@ test.describe('create first user', () => {
 		})
 
 		test('should redirect to dashboard after signup', async ({ helpers }) => {
-			await helpers.createFirstUser({ page, baseURL })
+			await helpers.createFirstUser({ baseURL, page })
 			await expect(page).toHaveTitle('Dashboard - Payload')
 		})
 	})
@@ -41,7 +44,7 @@ test.describe('create first user', () => {
 		let teardown: VoidFunction
 		let baseURL: string
 
-		test.beforeAll(async ({ setup, browser }) => {
+		test.beforeAll(async ({ browser, setup }) => {
 			const setupResult = await setup({ forceSetup: true })
 			teardown = setupResult.teardown
 			baseURL = setupResult.baseURL
@@ -59,8 +62,8 @@ test.describe('create first user', () => {
 		})
 
 		test('should redirect to setup page after signup', async ({ helpers }) => {
-			await helpers.createFirstUser({ page, baseURL })
-			await expect(page).toHaveURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
+			await helpers.createFirstUser({ baseURL, page })
+			await expect(page).toHaveURL(/^(.*?)\/admin\/setup-totp(\?back=.*)?$/g)
 		})
 	})
 })

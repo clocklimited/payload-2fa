@@ -1,4 +1,6 @@
-import { Page, expect } from '@playwright/test'
+import type { Page} from '@playwright/test';
+
+import { expect } from '@playwright/test'
 
 import { test } from './fixtures'
 
@@ -15,16 +17,16 @@ test.describe('access', () => {
 		let postId: string
 		let totpSecret: string
 
-		test.beforeAll(async ({ setup, browser, helpers }) => {
+		test.beforeAll(async ({ browser, helpers, setup }) => {
 			const setupResult = await setup({ forceSetup: true })
 			teardown = setupResult.teardown
 			baseURL = setupResult.baseURL
 			const context = await browser.newContext()
 			page = await context.newPage()
 
-			await helpers.createFirstUser({ page, baseURL })
-			await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
-			const totpResult = await helpers.setupTotp({ page, baseURL })
+			await helpers.createFirstUser({ baseURL, page })
+			await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*)?$/g)
+			const totpResult = await helpers.setupTotp({ baseURL, page })
 			totpSecret = totpResult.totpSecret
 			await page.waitForURL(/^(.*?)\/admin$/g)
 
@@ -40,8 +42,8 @@ test.describe('access', () => {
 
 			const postRes = await page.request.post(`${baseURL}/api/posts`, {
 				data: {
-					title: 'A song of ice and fire',
 					content: 'A story about dragons and kings',
+					title: 'A song of ice and fire',
 				},
 			})
 			const postData = await postRes.json()
@@ -59,9 +61,9 @@ test.describe('access', () => {
 				test.beforeAll(async ({ helpers }) => {
 					if (scenario === 'logged in (without TOTP)') {
 						await helpers.login({
-							page,
 							baseURL,
 							email: 'human@domain.com',
+							page,
 							password: '123456',
 						})
 						await page.waitForURL(/^(.*?)\/admin\/verify-totp/g)
@@ -108,8 +110,8 @@ test.describe('access', () => {
 					test('should forbid create', async () => {
 						const res = await page.request.post(`${baseURL}/api/posts`, {
 							data: {
-								title: 'Post title',
 								content: 'Post content',
+								title: 'Post title',
 							},
 						})
 						expect(res.ok()).toBeFalsy()
@@ -125,8 +127,8 @@ test.describe('access', () => {
 					test('should forbid update', async () => {
 						const res = await page.request.patch(`${baseURL}/api/posts/${postId}`, {
 							data: {
-								title: 'Post title',
 								content: 'Post content',
+								title: 'Post title',
 							},
 						})
 						expect(res.ok()).toBeFalsy()
@@ -206,8 +208,8 @@ test.describe('access', () => {
 				test('should allow create', async () => {
 					const res = await page.request.post(`${baseURL}/api/posts`, {
 						data: {
-							title: 'Post title',
 							content: 'Post content',
+							title: 'Post title',
 						},
 					})
 					expect(res.ok()).toBeTruthy()
@@ -223,8 +225,8 @@ test.describe('access', () => {
 				test('should allow update', async () => {
 					const res = await page.request.patch(`${baseURL}/api/posts/${postId}`, {
 						data: {
-							title: 'Post title',
 							content: 'Post content',
+							title: 'Post title',
 						},
 					})
 					expect(res.ok()).toBeTruthy()
@@ -268,16 +270,16 @@ test.describe('access', () => {
 		let authorId: string
 		let postId: string
 
-		test.beforeAll(async ({ setup, browser, helpers }) => {
-			const setupResult = await setup({ forceSetup: true, disableAccessWrapper: true })
+		test.beforeAll(async ({ browser, helpers, setup }) => {
+			const setupResult = await setup({ disableAccessWrapper: true, forceSetup: true })
 			teardown = setupResult.teardown
 			baseURL = setupResult.baseURL
 			const context = await browser.newContext()
 			page = await context.newPage()
 
-			await helpers.createFirstUser({ page, baseURL })
-			await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
-			await helpers.setupTotp({ page, baseURL })
+			await helpers.createFirstUser({ baseURL, page })
+			await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*)?$/g)
+			await helpers.setupTotp({ baseURL, page })
 			await page.waitForURL(/^(.*?)\/admin$/g)
 
 			const authorsRes = await page.request.post(`${baseURL}/api/authors`, {
@@ -292,8 +294,8 @@ test.describe('access', () => {
 
 			const postRes = await page.request.post(`${baseURL}/api/posts`, {
 				data: {
-					title: 'A song of ice and fire',
 					content: 'A story about dragons and kings',
+					title: 'A song of ice and fire',
 				},
 			})
 			const postData = await postRes.json()
@@ -348,8 +350,8 @@ test.describe('access', () => {
 				test('should forbid create', async () => {
 					const res = await page.request.post(`${baseURL}/api/posts`, {
 						data: {
-							title: 'Post title',
 							content: 'Post content',
+							title: 'Post title',
 						},
 					})
 					expect(res.ok()).toBeFalsy()
@@ -365,8 +367,8 @@ test.describe('access', () => {
 				test('should forbid update', async () => {
 					const res = await page.request.patch(`${baseURL}/api/posts/${postId}`, {
 						data: {
-							title: 'Post title',
 							content: 'Post content',
+							title: 'Post title',
 						},
 					})
 					expect(res.ok()).toBeFalsy()
@@ -403,9 +405,9 @@ test.describe('access', () => {
 		test.describe('logged in (without TOTP)', () => {
 			test.beforeAll(async ({ helpers }) => {
 				await helpers.login({
-					page,
 					baseURL,
 					email: 'human@domain.com',
+					page,
 					password: '123456',
 				})
 
@@ -452,8 +454,8 @@ test.describe('access', () => {
 				test('should allow create', async () => {
 					const res = await page.request.post(`${baseURL}/api/posts`, {
 						data: {
-							title: 'Post title',
 							content: 'Post content',
+							title: 'Post title',
 						},
 					})
 					expect(res.ok()).toBeTruthy()
@@ -469,8 +471,8 @@ test.describe('access', () => {
 				test('should allow update', async () => {
 					const res = await page.request.patch(`${baseURL}/api/posts/${postId}`, {
 						data: {
-							title: 'Post title',
 							content: 'Post content',
+							title: 'Post title',
 						},
 					})
 					expect(res.ok()).toBeTruthy()

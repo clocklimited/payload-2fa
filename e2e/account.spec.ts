@@ -1,4 +1,6 @@
-import { expect, Page } from '@playwright/test'
+import type { Page } from '@playwright/test';
+
+import { expect } from '@playwright/test'
 
 import { test } from './fixtures'
 
@@ -11,15 +13,15 @@ test.describe('account', () => {
 			let teardown: VoidFunction
 			let baseURL: string
 
-			test.beforeAll(async ({ setup, browser, helpers }) => {
+			test.beforeAll(async ({ browser, helpers, setup }) => {
 				const setupResult = await setup({ forceSetup: true })
 				teardown = setupResult.teardown
 				baseURL = setupResult.baseURL
 				page = await browser.newPage()
 
-				await helpers.createFirstUser({ page, baseURL })
-				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
-				await helpers.setupTotp({ page, baseURL })
+				await helpers.createFirstUser({ baseURL, page })
+				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*)?$/g)
+				await helpers.setupTotp({ baseURL, page })
 				await page.goto(`${baseURL}/admin/account`)
 			})
 
@@ -109,14 +111,14 @@ test.describe('account', () => {
 			let teardown: VoidFunction
 			let baseURL: string
 
-			test.beforeAll(async ({ setup, browser, helpers }) => {
+			test.beforeAll(async ({ browser, helpers, setup }) => {
 				const setupResult = await setup()
 				teardown = setupResult.teardown
 				baseURL = setupResult.baseURL
 				page = await browser.newPage()
-				await helpers.createFirstUser({ page, baseURL })
+				await helpers.createFirstUser({ baseURL, page })
 				await page.waitForURL(/^(.*?)\/admin$/g)
-				await helpers.setupTotp({ page, baseURL })
+				await helpers.setupTotp({ baseURL, page })
 				await page.goto(`${baseURL}/admin/account`)
 			})
 
@@ -206,15 +208,15 @@ test.describe('account', () => {
 			let teardown: VoidFunction
 			let baseURL: string
 
-			test.beforeAll(async ({ setup, browser, helpers }) => {
+			test.beforeAll(async ({ browser, helpers, setup }) => {
 				const setupResult = await setup({ forceSetup: true })
 				teardown = setupResult.teardown
 				baseURL = setupResult.baseURL
 				page = await browser.newPage()
 
-				await helpers.createFirstUser({ page, baseURL, forceTotp: true })
-				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
-				await helpers.setupTotp({ page, baseURL })
+				await helpers.createFirstUser({ baseURL, forceTotp: true, page })
+				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*)?$/g)
+				await helpers.setupTotp({ baseURL, page })
 				await page.goto(`${baseURL}/admin/account`)
 			})
 
@@ -306,13 +308,13 @@ test.describe('account', () => {
 			let baseURL: string
 			let teardown: VoidFunction
 
-			test.beforeAll(async ({ setup, browser, helpers }) => {
+			test.beforeAll(async ({ browser, helpers, setup }) => {
 				const setupResult = await setup({ forceSetup: true })
 				teardown = setupResult.teardown
 				baseURL = setupResult.baseURL
 				page = await browser.newPage()
-				await helpers.createFirstUser({ page, baseURL })
-				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
+				await helpers.createFirstUser({ baseURL, page })
+				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*)?$/g)
 			})
 
 			test.afterAll(async () => {
@@ -322,7 +324,7 @@ test.describe('account', () => {
 
 			test('should redirect to setup page', async ({}) => {
 				await page.goto(`${baseURL}/admin/account`)
-				await expect(page).toHaveURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
+				await expect(page).toHaveURL(/^(.*?)\/admin\/setup-totp(\?back=.*)?$/g)
 			})
 
 			test.describe('GET /api/account/me', () => {
@@ -391,12 +393,12 @@ test.describe('account', () => {
 			let teardown: VoidFunction
 			let baseURL: string = ''
 
-			test.beforeAll(async ({ setup, browser, helpers }) => {
+			test.beforeAll(async ({ browser, helpers, setup }) => {
 				const setupResult = await setup()
 				teardown = setupResult.teardown
 				baseURL = setupResult.baseURL
 				page = await browser.newPage()
-				await helpers.createFirstUser({ page, baseURL })
+				await helpers.createFirstUser({ baseURL, page })
 				await page.waitForURL(/^(.*?)\/admin$/g)
 				await page.goto(`${baseURL}/admin/account`)
 			})
@@ -412,8 +414,8 @@ test.describe('account', () => {
 
 			test('click should go to setup page', async ({}) => {
 				await page.getByRole('link', { name: 'Setup' }).click({ force: true })
-				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
-				await expect(page).toHaveURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
+				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*)?$/g)
+				await expect(page).toHaveURL(/^(.*?)\/admin\/setup-totp(\?back=.*)?$/g)
 				await page.goto(`${baseURL}/admin/account`)
 			})
 
@@ -494,13 +496,13 @@ test.describe('account', () => {
 			let baseURL: string
 			let teardown: VoidFunction
 
-			test.beforeAll(async ({ setup, browser, helpers }) => {
+			test.beforeAll(async ({ browser, helpers, setup }) => {
 				const setupResult = await setup({ forceSetup: false })
 				teardown = setupResult.teardown
 				baseURL = setupResult.baseURL
 				page = await browser.newPage()
-				await helpers.createFirstUser({ page, baseURL, forceTotp: true })
-				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
+				await helpers.createFirstUser({ baseURL, forceTotp: true, page })
+				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*)?$/g)
 			})
 
 			test.afterAll(async () => {
@@ -510,7 +512,7 @@ test.describe('account', () => {
 
 			test('should redirect to setup page', async ({}) => {
 				await page.goto(`${baseURL}/admin/account`)
-				await expect(page).toHaveURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
+				await expect(page).toHaveURL(/^(.*?)\/admin\/setup-totp(\?back=.*)?$/g)
 			})
 
 			test.describe('GET /api/account/me', () => {

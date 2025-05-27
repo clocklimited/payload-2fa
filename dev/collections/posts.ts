@@ -1,18 +1,27 @@
 import type { CollectionConfig } from 'payload'
-import { totpAccess } from 'payload-totp'
+
+import { totpAccess } from '@clocklimited/payload-2fa'
 
 export const posts: CollectionConfig = {
 	slug: 'posts',
-	admin: {
-		useAsTitle: 'title',
-	},
 	access: {
-		read: () => true,
 		create: (args) => {
 			return (
 				args.req.headers.get('authorization') === 'Bearer 123' ||
 				totpAccess(({ req: { user } }) => Boolean(user))(args)
 			)
+		},
+		read: () => true,
+	},
+	admin: {
+		useAsTitle: 'title',
+	},
+	custom: {
+		totp: {
+			disableAccessWrapper: {
+				create: true,
+				read: true,
+			},
 		},
 	},
 	fields: [
@@ -27,12 +36,4 @@ export const posts: CollectionConfig = {
 			required: true,
 		},
 	],
-	custom: {
-		totp: {
-			disableAccessWrapper: {
-				read: true,
-				create: true,
-			},
-		},
-	},
 }

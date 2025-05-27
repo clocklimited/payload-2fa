@@ -25,7 +25,7 @@ const payloadTotp =
 					providers: [
 						...(config.admin?.components?.providers || []),
 						{
-							path: 'payload-totp/rsc#TOTPProvider',
+							path: '@clocklimited/payload-2fa/rsc#TOTPProvider',
 							serverProps: {
 								pluginOptions,
 							},
@@ -38,7 +38,7 @@ const payloadTotp =
 						// without `/admin`, but `/`.
 						SetupTOTP: {
 							Component: {
-								path: 'payload-totp/rsc#TOTPSetup',
+								path: '@clocklimited/payload-2fa/rsc#TOTPSetup',
 								serverProps: {
 									pluginOptions,
 								},
@@ -50,7 +50,7 @@ const payloadTotp =
 						},
 						SetupTOTPBackslash: {
 							Component: {
-								path: 'payload-totp/rsc#TOTPSetup',
+								path: '@clocklimited/payload-2fa/rsc#TOTPSetup',
 								serverProps: {
 									pluginOptions,
 								},
@@ -62,7 +62,7 @@ const payloadTotp =
 						},
 						VerifyTOTP: {
 							Component: {
-								path: 'payload-totp/rsc#TOTPVerify',
+								path: '@clocklimited/payload-2fa/rsc#TOTPVerify',
 								serverProps: {
 									pluginOptions,
 								},
@@ -74,7 +74,7 @@ const payloadTotp =
 						},
 						VerifyTOTPBackslash: {
 							Component: {
-								path: 'payload-totp/rsc#TOTPVerify',
+								path: '@clocklimited/payload-2fa/rsc#TOTPVerify',
 								serverProps: {
 									pluginOptions,
 								},
@@ -117,7 +117,7 @@ const payloadTotp =
 								admin: {
 									components: {
 										Field: {
-											path: 'payload-totp/rsc#TOTPField',
+											path: '@clocklimited/payload-2fa/rsc#TOTPField',
 											serverProps: {
 												pluginOptions,
 											},

@@ -1,6 +1,6 @@
-# Payload TOTP (Time-based One-Time Password)
-[![NPM](https://img.shields.io/npm/v/payload-totp)](https://www.npmjs.com/package/payload-totp)
-[![Downloads](http://img.shields.io/npm/dm/payload-totp.svg)](https://www.npmjs.com/package/payload-totp)
+# @clocklimited/payload-2fa (Time-based One-Time Password)
+[![NPM](https://img.shields.io/npm/v/@clocklimited/payload-2fa)](https://www.npmjs.com/package/@clocklimited/payload-2fa)
+[![Downloads](http://img.shields.io/npm/dm/@clocklimited/payload-2fa.svg)](https://www.npmjs.com/package/@clocklimited/payload-2fa)
 ![banner](https://github.com/user-attachments/assets/631dd9bf-8425-439e-9988-d25b6d5d3f6e)
 
 [![Sponsor Me](https://github.com/user-attachments/assets/c6f96290-58c0-4a5b-ba53-136730d097e9)](https://github.com/sponsors/GeorgeHulpoi)
@@ -27,7 +27,7 @@ This plugin enhances security by wrapping the existing access controls under a T
 Install the plugin using any JavaScript package manager like [pnpm](https://pnpm.io/), [npm](https://npmjs.com/), or [Yarn](https://yarnpkg.com/):
 
 ```terminal
-pnpm add payload-totp
+pnpm add @clocklimited/payload-2fa
 ```
 
 ## Basic Usage
@@ -35,7 +35,7 @@ In the plugins array of your [Payload Config](https://payloadcms.com/docs/config
 
 ```tsx
 import { buildConfig } from 'payload'
-import { payloadTotp } from 'payload-totp'
+import { payloadTotp } from '@clocklimited/payload-2fa'
 
 const config = buildConfig({
     collections: [
@@ -120,7 +120,7 @@ In case that you need a more complex access, for example based on a header or au
 
 ```tsx
 import type { CollectionConfig } from 'payload'
-import { totpAccess } from 'payload-totp'
+import { totpAccess } from '@clocklimited/payload-2fa'
 
 export const posts: CollectionConfig = {
 	slug: 'posts',

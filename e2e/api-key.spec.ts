@@ -1,4 +1,6 @@
-import { expect, Page } from '@playwright/test'
+import type { Page } from '@playwright/test';
+
+import { expect } from '@playwright/test'
 
 import { test } from './fixtures'
 
@@ -10,16 +12,16 @@ test.describe('api key', () => {
 	let baseURL: string
     let apiKey: string
 
-	test.beforeAll(async ({ setup, browser, helpers }) => {
+	test.beforeAll(async ({ browser, helpers, setup }) => {
 		const setupResult = await setup({ forceSetup: true })
 		teardown = setupResult.teardown
 		baseURL = setupResult.baseURL
 		const context = await browser.newContext()
 		page = await context.newPage()
 
-		await helpers.createFirstUser({ page, baseURL })
-		await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
-		await helpers.setupTotp({ page, baseURL })
+		await helpers.createFirstUser({ baseURL, page })
+		await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*)?$/g)
+		await helpers.setupTotp({ baseURL, page })
         await page.goto(`${baseURL}/admin/account`)
 
         const checkbox = page.locator('#field-enableAPIKey');

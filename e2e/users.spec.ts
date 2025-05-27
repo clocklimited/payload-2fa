@@ -1,4 +1,6 @@
-import { expect, Page } from '@playwright/test'
+import type { Page } from '@playwright/test';
+
+import { expect } from '@playwright/test'
 
 import { test } from './fixtures'
 
@@ -9,16 +11,16 @@ test.describe('users', () => {
 	let teardown: VoidFunction
 	let baseURL: string
 
-	test.beforeAll(async ({ setup, browser, helpers }) => {
+	test.beforeAll(async ({ browser, helpers, setup }) => {
 		const setupResult = await setup({ forceSetup: true })
 		teardown = setupResult.teardown
 		baseURL = setupResult.baseURL
 		const context = await browser.newContext()
 		page = await context.newPage()
 
-		await helpers.createFirstUser({ page, baseURL })
-		await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
-		const { totpSecret } = await helpers.setupTotp({ page, baseURL })
+		await helpers.createFirstUser({ baseURL, page })
+		await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*)?$/g)
+		const { totpSecret } = await helpers.setupTotp({ baseURL, page })
 
 		await Promise.all([
 			page.request.post(`${baseURL}/api/users`, {
@@ -39,28 +41,28 @@ test.describe('users', () => {
 
 		await helpers.logout({ page })
 		await helpers.login({
-			page,
 			baseURL,
 			email: 'test1@domain.com',
+			page,
 			password: 'test1_pass',
 		})
 		await page.waitForURL(/^(.*?)\/admin\/setup-totp/g)
-		await helpers.setupTotp({ page, baseURL })
+		await helpers.setupTotp({ baseURL, page })
 
 		await helpers.logout({ page })
 		await helpers.login({
-			page,
 			baseURL,
 			email: 'test2@domain.com',
+			page,
 			password: 'test2_pass',
 		})
 		await page.waitForURL(/^(.*?)\/admin\/setup-totp/g)
-		await helpers.setupTotp({ page, baseURL })
+		await helpers.setupTotp({ baseURL, page })
 		await helpers.logout({ page })
 		await helpers.login({
-			page,
 			baseURL,
 			email: 'human@domain.com',
+			page,
 			password: '123456',
 		})
 		await page.waitForURL(/^(.*?)\/admin\/verify-totp/g)

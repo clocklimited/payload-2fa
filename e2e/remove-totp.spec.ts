@@ -1,9 +1,11 @@
 import type { I18nOptions } from '@payloadcms/translations'
-import { expect, Page } from '@playwright/test'
+import type { Page } from '@playwright/test';
+
+import { expect } from '@playwright/test'
 import { Secret, TOTP } from 'otpauth'
 
-import { type CustomTranslationsObject } from '../src/i18n/types.js'
 import { i18n as i18nFn } from '../src/i18n/index.js'
+import { type CustomTranslationsObject } from '../src/i18n/types.js'
 import { test } from './fixtures'
 
 test.describe.configure({ mode: 'parallel' })
@@ -18,16 +20,16 @@ test.describe('remove totp', () => {
 			let teardown: VoidFunction
 			let baseURL: string
 
-			test.beforeAll(async ({ setup, browser, helpers }) => {
+			test.beforeAll(async ({ browser, helpers, setup }) => {
 				const setupResult = await setup({ forceSetup: true })
 				teardown = setupResult.teardown
 				baseURL = setupResult.baseURL
 				const context = await browser.newContext()
 				page = await context.newPage()
 
-				await helpers.createFirstUser({ page, baseURL })
-				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
-				await helpers.setupTotp({ page, baseURL })
+				await helpers.createFirstUser({ baseURL, page })
+				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*)?$/g)
+				await helpers.setupTotp({ baseURL, page })
 			})
 
 			test.afterAll(async () => {
@@ -57,14 +59,14 @@ test.describe('remove totp', () => {
 			let teardown: VoidFunction
 			let baseURL: string
 
-			test.beforeAll(async ({ setup, browser, helpers }) => {
+			test.beforeAll(async ({ browser, helpers, setup }) => {
 				const setupResult = await setup()
 				teardown = setupResult.teardown
 				baseURL = setupResult.baseURL
 				const context = await browser.newContext()
 				page = await context.newPage()
 
-				await helpers.createFirstUser({ page, baseURL })
+				await helpers.createFirstUser({ baseURL, page })
 				await page.waitForURL(/^(.*?)\/admin$/g)
 				await page.goto(`${baseURL}/admin/account`)
 			})
@@ -111,7 +113,7 @@ test.describe('remove totp', () => {
 				let totpSecret: string
 
 				test.beforeAll(async ({ helpers }) => {
-					const totpResult = await helpers.setupTotp({ page, baseURL })
+					const totpResult = await helpers.setupTotp({ baseURL, page })
 					totpSecret = totpResult.totpSecret
 				})
 
@@ -210,16 +212,16 @@ test.describe('remove totp', () => {
 			let teardown: VoidFunction
 			let baseURL: string
 
-			test.beforeAll(async ({ setup, browser, helpers }) => {
+			test.beforeAll(async ({ browser, helpers, setup }) => {
 				const setupResult = await setup({ forceSetup: true })
 				teardown = setupResult.teardown
 				baseURL = setupResult.baseURL
 				const context = await browser.newContext()
 				page = await context.newPage()
 
-				await helpers.createFirstUser({ page, baseURL })
-				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*?)?$/g)
-				await helpers.setupTotp({ page, baseURL })
+				await helpers.createFirstUser({ baseURL, page })
+				await page.waitForURL(/^(.*?)\/admin\/setup-totp(\?back=.*)?$/g)
+				await helpers.setupTotp({ baseURL, page })
 				await page.goto(`${baseURL}/admin/account`)
 			})
 
@@ -240,14 +242,14 @@ test.describe('remove totp', () => {
 			let teardown: VoidFunction
 			let baseURL: string
 
-			test.beforeAll(async ({ setup, browser, helpers }) => {
+			test.beforeAll(async ({ browser, helpers, setup }) => {
 				const setupResult = await setup()
 				teardown = setupResult.teardown
 				baseURL = setupResult.baseURL
 				const context = await browser.newContext()
 				page = await context.newPage()
 
-				await helpers.createFirstUser({ page, baseURL })
+				await helpers.createFirstUser({ baseURL, page })
 				await page.waitForURL(/^(.*?)\/admin$/g)
 				await page.goto(`${baseURL}/admin/account`)
 			})
@@ -268,7 +270,7 @@ test.describe('remove totp', () => {
 				let totpSecret: string
 
 				test.beforeAll(async ({ helpers }) => {
-					const totpResult = await helpers.setupTotp({ page, baseURL })
+					const totpResult = await helpers.setupTotp({ baseURL, page })
 					totpSecret = totpResult.totpSecret
 					await page.goto(`${baseURL}/admin/account`)
 				})

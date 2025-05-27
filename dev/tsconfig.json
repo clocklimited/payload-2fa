@@ -14,9 +14,9 @@
 		"baseUrl": "./",
 		"paths": {
 			"@payload-config": ["./payload.config.ts"],
-			"payload-totp": ["../src/index.ts"],
-			"payload-totp/client": ["../src/exports/client.ts"],
-			"payload-totp/rsc": ["../src/exports/rsc.ts"]
+			"@clocklimited/payload-2fa": ["../src/index.ts"],
+			"@clocklimited/payload-2fa/client": ["../src/exports/client.ts"],
+			"@clocklimited/payload-2fa/rsc": ["../src/exports/rsc.ts"]
 		},
 		"noEmit": true
 	}

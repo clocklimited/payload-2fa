@@ -1,5 +1,5 @@
 {
-	"name": "payload-totp",
+	"name": "@clocklimited/payload-2fa",
 	"version": "3.0.0-beta.1",
 	"description": "Add an extra security layer to PayloadCMS using a Time-based One-time Password (TOTP).",
 	"license": "MIT",
@@ -15,7 +15,7 @@
 		"authentification"
 	],
 	"bugs": {
-		"url": "https://github.com/GeorgeHulpoi/payload-totp/issues"
+		"url": "https://github.com/clocklimited/payload-2fa/issues"
 	},
 	"author": {
 		"name": "George-Valentin Hulpoi",
@@ -23,7 +23,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/GeorgeHulpoi/payload-totp"
+		"url": "git+https://github.com/clocklimited/payload-2fa"
 	},
 	"exports": {
 		".": {

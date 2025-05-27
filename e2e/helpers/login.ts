@@ -1,14 +1,14 @@
-import { Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
 
 type Args = {
-	page: Page
-	baseURL: string
 	adminRoute?: string
+	baseURL: string
 	email: string
+	page: Page
 	password: string
 }
 
-export async function login({ page, baseURL, adminRoute = '/admin', email, password }: Args) {
+export async function login({ adminRoute = '/admin', baseURL, email, page, password }: Args) {
 	await page.goto(`${baseURL}${adminRoute}/login`)
 	await page.getByLabel('Email').pressSequentially(email)
 	await page.getByLabel('Password').pressSequentially(password)
