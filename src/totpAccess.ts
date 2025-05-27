@@ -17,28 +17,26 @@ export const totpAccess: (innerAccess?: Access) => Access = (innerAccess) => {
 			},
 		} = args as unknown as { req: { payload: BasePayload; user: UserWithTotp } }
 
-		if (!user) {
-			return false
-		}
+		const fn = innerAccess || (() => !!args.req.user)
 
-		if (pluginOptions.disableAccessWrapper) {
-			return innerAccess ? innerAccess(args) : true
+		if (!user) {
+			return fn(args)
 		}
 
 		if (
 			((user.forceTotp || pluginOptions.forceSetup) && user._strategy === 'totp') ||
 			user._strategy === 'api-key'
 		) {
-			return innerAccess ? innerAccess(args) : true
+			return fn(args)
 		} else {
 			if (user.hasTotp) {
 				if (user._strategy === 'totp') {
-					return innerAccess ? innerAccess(args) : true
+					return fn(args)
 				} else {
 					return false
 				}
 			} else {
-				return innerAccess ? innerAccess(args) : true
+				return fn(args)
 			}
 		}
 	}
