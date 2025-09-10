@@ -36,6 +36,9 @@ export const TOTPField = async (args: Args) => {
 
 	const isSelf = Boolean(user && user.id === id)
 
+	// Only show inline actions for self when not globally or per-user forced
+	const allowInlineSelf = !user?.forceTotp && !pluginOptions.forceSetup
+
 	let canAdminManage = false
 	if (!isSelf && pluginOptions.adminManageAccess) {
 		try {
@@ -70,7 +73,7 @@ export const TOTPField = async (args: Args) => {
 			<div className={styles.action}>
 				{isSelf ? (
 					<>
-						{enabled && !needsSetup && (
+						{enabled && allowInlineSelf && (
 							<Remove
 								i18n={i18n}
 								payload={payload}
@@ -78,7 +81,7 @@ export const TOTPField = async (args: Args) => {
 								user={user}
 							/>
 						)}
-						{needsSetup && (
+						{!enabled && allowInlineSelf && (
 							<Setup backUrl={url} i18n={i18n} payload={payload} />
 						)}
 					</>
