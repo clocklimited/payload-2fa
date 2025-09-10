@@ -31,18 +31,24 @@ export const TOTPProvider = async (args: Args) => {
 		serverURL: payload.config.serverURL,
 	})
 
+	// Ensure we compare pathnames only without relying on a dummy origin
+	const toPathname = (url: string) =>
+		/^https?:\/\//i.test(url) ? new URL(url).pathname : url
+	const verifyPathname = toPathname(verifyUrl)
+	const setupPathname = toPathname(setupUrl)
+
 	if (
 		user &&
 		user.hasTotp &&
 		!['api-key', 'totp'].includes(user._strategy) &&
-		pathname !== verifyUrl
+		pathname !== verifyPathname
 	) {
 		redirect(`${verifyUrl}?back=${encodeURIComponent(pathname)}`)
 	} else if (
 		user &&
 		!user.hasTotp &&
 		(user.forceTotp || pluginOptions.forceSetup) &&
-		pathname !== setupUrl &&
+		pathname !== setupPathname &&
 		user._strategy !== 'api-key'
 	) {
 		redirect(`${setupUrl}?back=${encodeURIComponent(pathname)}`)
