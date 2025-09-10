@@ -17,14 +17,22 @@ export const TOTPField = async (args: Args) => {
 	const pluginOptions = args.pluginOptions
 	const i18n = args.i18n as I18nClient<CustomTranslationsObject, CustomTranslationsKeys>
 	const {
-		data: { id },
+		data,
 		payload,
 		req: { url },
 		user: _user,
 	} = args
 
 	const user = _user as unknown as UserWithTotp
-	const forceTotp = !user?.forceTotp && !pluginOptions.forceSetup
+	const { id } = (data as { id: string }) || { id: undefined }
+
+	// Determine target document's TOTP state
+	const doc = data as { forceTotp?: boolean; hasTotp?: boolean }
+	const docHasTotp = Boolean(doc?.hasTotp)
+	const docForceTotp = Boolean(doc?.forceTotp)
+	const needsSetup = !docHasTotp && (docForceTotp || Boolean(pluginOptions.forceSetup))
+	const disabled = !docHasTotp && !needsSetup
+	const enabled = docHasTotp
 
 	const isSelf = Boolean(user && user.id === id)
 
@@ -53,16 +61,16 @@ export const TOTPField = async (args: Args) => {
 			<div className={styles.text}>
 				<label className="field-label">
 					{i18n.t('totpPlugin:authApp')}
-					{user.hasTotp && (
-						<span className={styles.status}>{i18n.t('totpPlugin:configured')}</span>
-					)}
+					{enabled && <span className={styles.status}>{i18n.t('totpPlugin:configured')}</span>}
+					{needsSetup && <span className={styles.status}>{i18n.t('totpPlugin:setup:title')}</span>}
+					{disabled && <span className={styles.status}>Disabled</span>}
 				</label>
 				<span className={styles.description}>{i18n.t('totpPlugin:fieldDescription')}</span>
 			</div>
 			<div className={styles.action}>
 				{isSelf ? (
 					<>
-						{user.hasTotp && forceTotp && (
+						{enabled && !needsSetup && (
 							<Remove
 								i18n={i18n}
 								payload={payload}
@@ -70,15 +78,18 @@ export const TOTPField = async (args: Args) => {
 								user={user}
 							/>
 						)}
-						{!user.hasTotp && forceTotp && (
+						{needsSetup && (
 							<Setup backUrl={url} i18n={i18n} payload={payload} />
 						)}
 					</>
 				) : (
 					<AdminManageClient
 						apiRoute={payload.config.routes.api}
+						disabled={disabled}
+						enabled={enabled}
+						needsSetup={needsSetup}
 						serverURL={payload.config.serverURL}
-						targetUserId={id as string}
+						targetUserId={id}
 					/>
 				)}
 			</div>

@@ -8,9 +8,12 @@ import { useCallback, useState } from 'react'
 import { adminRemoveTotp, adminResetTotp, type VerifyResponse } from '../../client/helpers.js'
 
 type Props = {
-	apiRoute: string
-	serverURL: string
-	targetUserId: string
+  apiRoute: string
+  disabled: boolean
+  enabled: boolean
+  needsSetup: boolean
+  serverURL: string
+  targetUserId: string
 }
 
 type AdminActionFn = (args: {
@@ -19,7 +22,7 @@ type AdminActionFn = (args: {
 	userId: string
 }) => Promise<VerifyResponse>
 
-export default function AdminManageClient({ apiRoute, serverURL, targetUserId }: Props) {
+export default function AdminManageClient({ apiRoute, disabled: isDisabledState, enabled: _isEnabledState, needsSetup: isNeedsSetupState, serverURL, targetUserId }: Props) {
 	const [pending, setPending] = useState(false)
 	const { closeModal, openModal } = useModal() as {
 		closeModal: (slug: string) => void
@@ -55,46 +58,46 @@ export default function AdminManageClient({ apiRoute, serverURL, targetUserId }:
 
 	return (
 		<div style={{ alignItems: 'center', display: 'flex', gap: 8 }}>
-			<Button
-				aria-label="Remove 2FA"
-				buttonStyle="secondary"
-				disabled={pending}
-				onClick={() => openModal(removeSlug)}
-				size="small"
-				type="button"
-			>
-				Remove 2FA
-			</Button>
-			<Button
-				aria-label="Reset 2FA"
-				buttonStyle="secondary"
-				disabled={pending}
-				onClick={() => openModal(resetSlug)}
-				size="small"
-				type="button"
-			>
-				Reset 2FA
-			</Button>
+      <Button
+        aria-label="Remove 2FA"
+        buttonStyle="secondary"
+        disabled={pending || isDisabledState}
+        onClick={() => openModal(removeSlug)}
+        size="small"
+        type="button"
+      >
+        Remove 2FA
+      </Button>
+      <Button
+        aria-label="Reset 2FA"
+        buttonStyle="secondary"
+        disabled={pending || isNeedsSetupState}
+        onClick={() => openModal(resetSlug)}
+        size="small"
+        type="button"
+      >
+        Reset 2FA
+      </Button>
 
-			<ConfirmationModal
-				body="This will revoke their authenticator. They can re-setup later."
-				confirmingLabel="Removing..."
-				confirmLabel="Confirm Remove"
-				heading="Remove 2FA for this user?"
-				modalSlug={removeSlug}
-				onCancel={() => closeModal(removeSlug)}
-				onConfirm={async () => doAction(adminRemoveTotp, '2FA removed', removeSlug)}
-			/>
+      <ConfirmationModal
+        body="This will revoke their authenticator. They can re-setup later."
+        confirmingLabel="Removing..."
+        confirmLabel="Confirm Remove"
+        heading="Remove 2FA for this user?"
+        modalSlug={removeSlug}
+        onCancel={() => closeModal(removeSlug)}
+        onConfirm={async () => doAction(adminRemoveTotp, '2FA removed', removeSlug)}
+      />
 
-			<ConfirmationModal
-				body="This will revoke their authenticator and require setup again."
-				confirmingLabel="Resetting..."
-				confirmLabel="Confirm Reset"
-				heading="Reset 2FA for this user?"
-				modalSlug={resetSlug}
-				onCancel={() => closeModal(resetSlug)}
-				onConfirm={async () => doAction(adminResetTotp, '2FA reset', resetSlug)}
-			/>
+      <ConfirmationModal
+        body="This will revoke their authenticator and require setup again."
+        confirmingLabel="Resetting..."
+        confirmLabel="Confirm Reset"
+        heading="Reset 2FA for this user?"
+        modalSlug={resetSlug}
+        onCancel={() => closeModal(resetSlug)}
+        onConfirm={async () => doAction(adminResetTotp, '2FA reset', resetSlug)}
+      />
 		</div>
 	)
 }
