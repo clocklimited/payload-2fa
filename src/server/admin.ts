@@ -22,10 +22,14 @@ export async function removeTotpForUser({ payload, pluginOptions: override, user
   }
 
   try {
+    const data: Record<string, unknown> = { totpSecret: null }
+    if (pluginOptions.userSpecificForceTotpField?.enabled) {
+      data['forceTotp'] = false
+    }
     await payload.update({
       id: userId,
       collection: pluginOptions.collection,
-      data: { totpSecret: null },
+      data,
       overrideAccess: true,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any)

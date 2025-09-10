@@ -2,6 +2,7 @@
 .root :global(.field-label) {
 	display: flex;
 	flex-wrap: nowrap;
+	margin-bottom: 12px;
 }
 
 .root {
