@@ -3,6 +3,9 @@ import type { AuthStrategy } from 'payload'
 import jwt from 'jsonwebtoken'
 import { cookies } from 'next/headers.js'
 
+import { getTotpSecret } from './utilities/getTotpSecret.js'
+import { resolvePluginOptions } from './utilities/totpUtils.js'
+
 export const strategy: AuthStrategy = {
 	name: 'totp',
 	authenticate: async (args) => {
@@ -48,6 +51,22 @@ export const strategy: AuthStrategy = {
 		const originalStrategyResult = await originalStrategy.authenticate(args)
 
 		if (originalStrategyResult.user?.id === userId) {
+			// Ensure the user still has TOTP configured; otherwise, do not honor the TOTP cookie
+			const pluginOptions = resolvePluginOptions(payload)
+			if (!pluginOptions) {
+				return { user: null }
+			}
+
+			const secret = await getTotpSecret({
+				collection: pluginOptions.collection,
+				payload,
+				user: originalStrategyResult.user,
+			})
+
+			if (!secret) {
+				return { user: null }
+			}
+
 			return {
 				user: {
 					...originalStrategyResult.user,

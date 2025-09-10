@@ -1,7 +1,8 @@
 import type { TOTP } from 'otpauth'
-import type { CheckboxField, CollectionSlug, User } from 'payload'
+import type { Access, CheckboxField, CollectionSlug, User } from 'payload'
 
 export type PayloadTOTPConfig = {
+	adminManageAccess?: Access
 	collection: CollectionSlug
 	disableAccessWrapper?: boolean
 	disabled?: boolean

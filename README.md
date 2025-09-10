@@ -85,6 +85,19 @@ The `totp` property is used to configure the [TOTP class](https://hectorm.github
 - `issuer`: The issuer name to display in authenticator apps
 - `period`: Token validity period in seconds (default: 30)
 
+### `adminManageAccess`
+
+Controls who can manage other users’ 2FA from within the Payload admin. When provided, authorized users will see admin controls on the Users profile page to Remove or Reset 2FA for the target user. This function follows the standard Payload `Access` signature and can return a boolean (or `Where`) or a Promise.
+
+Example (admins only):
+
+```ts
+payloadTotp({
+  collection: 'users',
+  adminManageAccess: ({ req: { user } }) => Boolean(user && user.role === 'admin'),
+})
+```
+
 ## Access Wrapper
 
 By default, PayloadCMS has access set to `({user}) => Boolean(user)`. Since PayloadCMS naturally handles access for logged-in users, this plugin follows the same pattern.
@@ -167,3 +180,33 @@ Now, when you log out and log back in, you'll be prompted to enter your TOTP PIN
 ![login_video](https://github.com/user-attachments/assets/432941af-1cd4-4321-b2c5-0cb41bde90de)
 
 After entering the correct PIN, you'll be redirected to the main dashboard page.
+
+## Admin Management (Reset/Remove other users’ 2FA)
+
+When `adminManageAccess` grants permission, the Users collection edit view shows admin-only controls to manage another user’s 2FA:
+
+- Remove 2FA: Clears the user’s TOTP secret.
+- Reset 2FA: Clears the secret and (if configured) forces the user to re‑setup TOTP on next login.
+
+Both actions prompt for confirmation via modal and display success/error toasts. If a user’s 2FA is removed or reset, any previously issued `payload-totp` cookie is ignored on subsequent requests.
+
+### API Endpoints (guarded)
+
+The plugin registers two admin endpoints, which require `adminManageAccess` to pass:
+
+- `POST /api/admin/remove-user-totp` – body: `{ userId: string }`
+- `POST /api/admin/reset-user-totp` – body: `{ userId: string }`
+
+### Helpers
+
+- Client (for dashboards calling the API):
+  - `adminRemoveTotp({ userId, serverURL?, apiRoute? })`
+  - `adminResetTotp({ userId, serverURL?, apiRoute? })`
+  - Import from `@clocklimited/payload-2fa/client`.
+
+- Server (for server actions / route handlers):
+  - `removeTotpForUser({ payload, userId })`
+  - `resetTotpForUser({ payload, userId })`
+  - Import from `@clocklimited/payload-2fa/server`.
+
+No extra configuration is required beyond `adminManageAccess`.

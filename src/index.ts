@@ -4,6 +4,7 @@ import type { CheckboxField, Config, Field, TextField, UIField } from 'payload'
 import type { CustomTranslationsKeys } from './i18n/types.js'
 import type { PayloadTOTPConfig } from './types.js'
 
+import { adminRemoveHandler, adminResetHandler } from './api/admin.js'
 import { removeEndpointHandler } from './api/remove.js'
 import { setSecret } from './api/setSecret.js'
 import { verifyToken } from './api/verifyToken.js'
@@ -289,6 +290,17 @@ const payloadTotp =
 					handler: removeEndpointHandler(pluginOptions),
 					method: 'post',
 					path: '/remove-totp',
+				},
+				// Admin-only endpoints for managing other users' TOTP
+				{
+					handler: adminRemoveHandler(pluginOptions),
+					method: 'post',
+					path: '/admin/remove-user-totp',
+				},
+				{
+					handler: adminResetHandler(pluginOptions),
+					method: 'post',
+					path: '/admin/reset-user-totp',
 				},
 			],
 			globals: [

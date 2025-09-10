@@ -1,10 +1,11 @@
 import type { I18nClient } from '@payloadcms/translations'
-import type { TextFieldServerProps } from 'payload'
+import type { TextFieldServerProps, Where } from 'payload'
 
 import type { CustomTranslationsKeys, CustomTranslationsObject } from '../../i18n/types.js'
 import type { PayloadTOTPConfig, UserWithTotp } from '../../types.js'
 
 import styles from './index.module.css'
+import AdminManageClient from './manage.client.js'
 import Remove from './Remove.js'
 import Setup from './Setup.js'
 
@@ -12,7 +13,7 @@ type Args = {
 	pluginOptions: PayloadTOTPConfig
 } & TextFieldServerProps
 
-export const TOTPField = (args: Args) => {
+export const TOTPField = async (args: Args) => {
 	const pluginOptions = args.pluginOptions
 	const i18n = args.i18n as I18nClient<CustomTranslationsObject, CustomTranslationsKeys>
 	const {
@@ -25,7 +26,21 @@ export const TOTPField = (args: Args) => {
 	const user = _user as unknown as UserWithTotp
 	const forceTotp = !user?.forceTotp && !pluginOptions.forceSetup
 
-	if (!user || user.id !== id) {
+	const isSelf = Boolean(user && user.id === id)
+
+	let canAdminManage = false
+	if (!isSelf && pluginOptions.adminManageAccess) {
+		try {
+			const fn = pluginOptions.adminManageAccess as unknown as (input: unknown) => boolean | Promise<boolean | Where> | Where
+			const res = fn({ req: args.req })
+			const allowed = res instanceof Promise ? await res : res
+			canAdminManage = Boolean(allowed)
+		} catch {
+			canAdminManage = false
+		}
+	}
+
+	if (!isSelf && !canAdminManage) {
 		return null
 	}
 
@@ -45,16 +60,26 @@ export const TOTPField = (args: Args) => {
 				<span className={styles.description}>{i18n.t('totpPlugin:fieldDescription')}</span>
 			</div>
 			<div className={styles.action}>
-				{user.hasTotp && forceTotp && (
-					<Remove
-						i18n={i18n}
-						payload={payload}
-						pluginOptions={pluginOptions}
-						user={user}
+				{isSelf ? (
+					<>
+						{user.hasTotp && forceTotp && (
+							<Remove
+								i18n={i18n}
+								payload={payload}
+								pluginOptions={pluginOptions}
+								user={user}
+							/>
+						)}
+						{!user.hasTotp && forceTotp && (
+							<Setup backUrl={url} i18n={i18n} payload={payload} />
+						)}
+					</>
+				) : (
+					<AdminManageClient
+						apiRoute={payload.config.routes.api}
+						serverURL={payload.config.serverURL}
+						targetUserId={id as string}
 					/>
-				)}
-				{!user.hasTotp && forceTotp && (
-					<Setup backUrl={url} i18n={i18n} payload={payload} />
 				)}
 			</div>
 		</div>

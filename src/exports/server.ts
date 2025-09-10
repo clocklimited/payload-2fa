@@ -1,4 +1,9 @@
 export {
+	type AdminTotpResponse,
+	removeTotpForUser,
+	resetTotpForUser,
+} from '../server/admin.js'
+export {
 	hasTotp,
 	type HasTotpArgs,
 	setupTotp,

@@ -1,13 +1,14 @@
 import type { I18nClient } from '@payloadcms/translations'
 import type { BasePayload, PayloadHandler } from 'payload'
 
-import { Secret, TOTP } from 'otpauth'
+// use shared utils to construct and validate TOTP
 
 import type { CustomTranslationsKeys, CustomTranslationsObject } from '../i18n/types.js'
 import type { PayloadTOTPConfig, UserWithTotp } from '../types.js'
 
 import { getTotpSecret } from '../utilities/getTotpSecret.js'
 import { removeCookie } from '../utilities/removeCookie.js'
+import { createTOTP, isValidToken } from '../utilities/totpUtils.js'
 
 export function removeEndpointHandler(pluginOptions: PayloadTOTPConfig) {
 	const handler: PayloadHandler = async (req) => {
@@ -44,20 +45,9 @@ export function removeEndpointHandler(pluginOptions: PayloadTOTPConfig) {
 			user,
 		})
 
-		const totp = new TOTP({
-			algorithm: pluginOptions.totp?.algorithm || 'SHA1',
-			digits: pluginOptions.totp?.digits || 6,
-			issuer: pluginOptions.totp?.issuer || 'Payload',
-			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-			// @ts-ignore
-			label: user.email || user.username,
-			period: pluginOptions.totp?.period || 30,
-			secret: Secret.fromBase32(totpSecret!),
-		})
+		const totp = createTOTP({ pluginOptions, secretBase32: totpSecret!, user: user as unknown as UserWithTotp })
 
-		const delta = totp.validate({ token: data['token'].toString(), window: 1 })
-
-		if (delta === null) {
+		if (!isValidToken(totp, data['token'])) {
 			return Response.json({ message: i18n.t('totpPlugin:setup:incorrectCode'), ok: false })
 		}
 

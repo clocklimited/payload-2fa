@@ -61,6 +61,40 @@ export async function setupTotp({ secret, token, ...rest }: SetupArgs): Promise<
 	}
 }
 
+type AdminArgs = { userId: string } & CommonArgs
+
+export async function adminRemoveTotp({ userId, ...rest }: AdminArgs): Promise<VerifyResponse> {
+  const url = buildApiURL(rest, '/admin/remove-user-totp')
+
+  const res = await fetch(url, {
+    body: JSON.stringify({ userId }),
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+  })
+  try {
+    return (await res.json()) as VerifyResponse
+  } catch {
+    return { message: 'An error has occurred.', ok: false }
+  }
+}
+
+export async function adminResetTotp({ userId, ...rest }: AdminArgs): Promise<VerifyResponse> {
+  const url = buildApiURL(rest, '/admin/reset-user-totp')
+
+  const res = await fetch(url, {
+    body: JSON.stringify({ userId }),
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    method: 'POST',
+  })
+  try {
+    return (await res.json()) as VerifyResponse
+  } catch {
+    return { message: 'An error has occurred.', ok: false }
+  }
+}
+
 export function generateTotpSecret(size = 32) {
 	const secret = new Secret({ size })
 	return { base32: secret.base32, secret }
