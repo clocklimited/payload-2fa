@@ -131,8 +131,22 @@ const payloadTotp =
 								name: 'hasTotp',
 								type: 'checkbox',
 								access: {
-									read: ({ data, req: { user } }) =>
-										data && user && data?.id === user?.id,
+									read: (params) => {
+										const {
+											data,
+											req: { user },
+										} = params
+
+										if (data && user && data?.id === user?.id) {
+											return true
+										}
+
+										if (pluginOptions.adminManageAccess) {
+											return pluginOptions.adminManageAccess(params)
+										}
+
+										return false
+									},
 								},
 								admin: {
 									disableBulkEdit: true,
